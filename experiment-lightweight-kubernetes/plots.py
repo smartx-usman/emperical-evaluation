@@ -11,27 +11,36 @@ class Plots:
     sharex = 'none'
     sharey = 'none'
     legend_columns = 1
+    width = 8.0  # inches
+    height = 5.0  # inches
 
-    plt.rcParams["figure.figsize"] = [8.0, 5.0]
     plt.rcParams["figure.autolayout"] = True
 
     fig, axs = plt.subplots(no_of_rows, no_of_cols, sharex='none', sharey='none')
 
-    def __init__(self, no_of_rows, no_of_cols, sharex, sharey, legend_columns):
+    def __init__(self, no_of_rows, no_of_cols, sharex, sharey, legend_columns, width, height):
         self.no_of_rows = no_of_rows
         self.no_of_cols = no_of_cols
         self.sharex = sharex
         self.sharey = sharey
         self.legend_columns = legend_columns
+        plt.rcParams["figure.figsize"] = [width, height]
         self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey)
+        # Uncomment for rows=1 and cols=2 or more
+        # self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey, squeeze=False)
 
-    def timeline_plot(self, df, x_col, y_col, label, axs_row, axs_col, title, x_label, y_label, y_lim_start, y_lim_end, legend_set, set_x_label, color):
+    def timeline_plot(self, df, x_col, y_col, label, axs_row, axs_col, title, x_label, y_label, y_lim_start, y_lim_end,
+                      legend_set, set_x_label, color):
         self.axs[axs_row, axs_col].set_title(title)
         if set_x_label:
             self.axs[axs_row, axs_col].set_xlabel(x_label)
         self.axs[axs_row, axs_col].set_ylabel(y_label)
         self.axs[axs_row, axs_col].set_ylim(y_lim_start, y_lim_end)  # scale between these values
-        self.axs[axs_row, axs_col].plot_date(df[x_col], df[y_col], label=label, linestyle='-', markersize=1, color=color)
+        if color == '':
+            self.axs[axs_row, axs_col].plot_date(df[x_col], df[y_col], label=label, linestyle='-', markersize=1)
+        else:
+            self.axs[axs_row, axs_col].plot_date(df[x_col], df[y_col], label=label, linestyle='-', markersize=1,
+                                                 color=color)
         self.axs[axs_row, axs_col].yaxis.grid('gray')
 
         if legend_set:
@@ -73,9 +82,14 @@ class Plots:
 
         plt.tight_layout()
 
-    def seaborn_bar_plot(self, data, x, y, hue, x_label, y_label, row_index, col_index, ylim_start, ylim_end, legend, error):
+    def seaborn_bar_plot(self, data, x, y, hue, x_label, y_label, row_index, col_index, ylim_start, ylim_end, legend,
+                         format_axis_label, error):
         # Create a DataFrame from the data
         df = pd.DataFrame(data)
+
+        # Convert the 'x' column to integers
+        if format_axis_label == 'x':
+            df[x] = df[x].astype(int)
 
         # Set Seaborn style
         sns.set(style='whitegrid')
@@ -100,9 +114,14 @@ class Plots:
             # Set labels and title
             self.axs.set_xlabel(x_label)
             self.axs.set_ylabel(y_label)
+
+            # Format x-axis labels with commas
+            if format_axis_label == 'x':
+                self.axs.set_xticklabels(['{:,.0f}'.format(label) for label in df[x].unique()])
         else:
             if error:
-                sns.barplot(ax=self.axs[row_index, col_index], x=x, y=y, hue=hue, data=df, palette='pastel', errwidth=1.5,
+                sns.barplot(ax=self.axs[row_index, col_index], x=x, y=y, hue=hue, data=df, palette='pastel',
+                            errwidth=1.5,
                             errcolor='gray', capsize=.02, edgecolor='black', linewidth=1)
                 self.axs[row_index, col_index].get_legend().remove()  # Remove legend in each subplot
             else:
@@ -119,15 +138,19 @@ class Plots:
 
             # Legend placement
             if legend:
-                #self.axs[row_index, col_index].legend(loc='upper left', ncol=2, title="Title")
-                #plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
+                # self.axs[row_index, col_index].legend(loc='upper left', ncol=2, title="Title")
+                # plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
                 self.axs[row_index, col_index].legend(ncol=self.legend_columns, fontsize=9)
-                #self.axs[row_index, col_index].legend(loc='center left', bbox_to_anchor=(1, 0.5), ncol=self.legend_columns, fontsize=8)
-                #self.axs[row_index, col_index].legend(loc='lower center', bbox_to_anchor=(.5, 1), ncol=self.legend_columns)
+                # self.axs[row_index, col_index].legend(loc='center left', bbox_to_anchor=(1, 0.5), ncol=self.legend_columns, fontsize=8)
+                # self.axs[row_index, col_index].legend(loc='lower center', bbox_to_anchor=(.5, 1), ncol=self.legend_columns)
 
             # Set labels and title
             self.axs[row_index, col_index].set_xlabel(x_label)
             self.axs[row_index, col_index].set_ylabel(y_label)
+
+            # Format x-axis labels with commas
+            if format_axis_label == 'x':
+                self.axs[row_index, col_index].set_xticklabels(['{:,.0f}'.format(label) for label in df[x].unique()])
 
         # plt.title('Metrics Comparison for Different Kubernetes Distributions')
 
@@ -138,7 +161,7 @@ class Plots:
         # plt.show()
 
     def dual_axis_plot(self, x_data, y1_data, y2_data, x_label, y_lim_start, y_lim_end):
-        #fig, ax1 = plt.subplots()
+        # fig, ax1 = plt.subplots()
 
         # Latency data on the first y-axis (left)
         self.axs.set_xlabel(x_label)
@@ -171,8 +194,8 @@ class Plots:
         self.axs[0].set_ylabel(y_label_1)
         self.axs[0].set_xticks(index + bar_width / 2)
         self.axs[0].set_xticklabels(x_data)
-        self.axs[0].legend()
-        self.axs[0].set_ylim(0, 70)
+        # self.axs[0].legend()
+        self.axs[0].set_ylim(0, 60)
 
         # Subplot 2: Throughput
         self.axs[1].bar(index, y3_data, bar_width, label=label1, color=bar_colors[0])
@@ -181,5 +204,7 @@ class Plots:
         self.axs[1].set_ylabel(y_label_2)
         self.axs[1].set_xticks(index + bar_width / 2)
         self.axs[1].set_xticklabels(x_data)
-        self.axs[1].legend()
+        # self.axs[1].legend()
         self.axs[1].set_ylim(0, 250)
+
+        plt.legend(loc='upper left')
