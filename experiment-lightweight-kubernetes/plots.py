@@ -25,9 +25,9 @@ class Plots:
         self.sharey = sharey
         self.legend_columns = legend_columns
         plt.rcParams["figure.figsize"] = [width, height]
-        self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey)
+        #self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey)
         # Uncomment for rows=1 and cols=2 or more
-        # self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey, squeeze=False)
+        self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey, squeeze=False)
 
     def timeline_plot(self, df, x_col, y_col, label, axs_row, axs_col, title, x_label, y_label, y_lim_start, y_lim_end,
                       legend_set, set_x_label, color):
@@ -47,6 +47,24 @@ class Plots:
             self.axs[axs_row, axs_col].legend(loc='upper right')
 
         self.fig.autofmt_xdate(rotation=50)
+        self.fig.tight_layout()
+
+    def time_instance_plot(self, df, x_col, y_col, label, axs_row, axs_col, title, x_label, y_label, y_lim_start,
+                    y_lim_end, legend_set, set_x_label, color):
+        self.axs[axs_row, axs_col].set_title(title)
+        if set_x_label:
+            self.axs[axs_row, axs_col].set_xlabel(x_label)
+        self.axs[axs_row, axs_col].set_ylabel(y_label)
+        self.axs[axs_row, axs_col].set_ylim(y_lim_start, y_lim_end)  # scale between these values
+        if color == '':
+            self.axs[axs_row, axs_col].plot(df[x_col], df[y_col], label=label, linestyle='-', markersize=1)
+        else:
+            self.axs[axs_row, axs_col].plot(df[x_col], df[y_col], label=label, linestyle='-', markersize=1, color=color)
+        self.axs[axs_row, axs_col].yaxis.grid('gray')
+
+        if legend_set:
+            self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper right')
+
         self.fig.tight_layout()
 
     def simple_line_plot(self, x_data, y_data, title, x_label, y_label, y_lim_start, y_lim_end, label, color):
