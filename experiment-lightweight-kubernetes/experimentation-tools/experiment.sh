@@ -79,12 +79,14 @@ elif [ "$type" = "deployment" ] && [ "$workers" = 1 ]; then
     objects=(20)
   fi
   cp "${BASE_PATH}/${CONFIG_PATH}/coap-${type}.yaml" "${BASE_PATH}/${CONFIG_PATH}/coap-${type}-object.yaml"
+  yq e '.spec.replicas = 2' -i "${BASE_PATH}/${CONFIG_PATH}/coap-${type}-object.yaml"
 elif  [ "$type" = "deployment" ] && [ "$workers" = 3 ]; then
   objects=(1 2 4 8 16 20 32 40)
   if [ "$operation" = "create" ]; then
     objects=(40)
   fi
   yq e 'del(.spec.template.spec.nodeSelector)' "${BASE_PATH}/${CONFIG_PATH}/coap-${type}.yaml" > "${BASE_PATH}/${CONFIG_PATH}/coap-${type}-object.yaml"
+  yq e '.spec.replicas = 2' -i "${BASE_PATH}/${CONFIG_PATH}/coap-${type}-object.yaml"
 else
   echo "Invalid argument. Please enter correct number of workers."
   exit 1
