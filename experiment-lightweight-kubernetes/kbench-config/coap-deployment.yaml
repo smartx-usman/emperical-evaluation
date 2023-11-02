@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coap-dep
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: coap-dep
+  template:
+    metadata:
+      labels:
+        app: coap-dep
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: worker1
+      containers:
+      - image: usman476/coap:latest
+        command: [ "python3" ]
+        args: [ "coap-server.py" ]
+        imagePullPolicy: IfNotPresent
+        name: coap-container
+        resources:
+          limits:
+            cpu: 20m
+            memory: 20Mi
+          requests:
+            cpu: 10m
+            memory: 10Mi
+        ports:
+        - containerPort: 8090
