@@ -1,0 +1,40 @@
+{
+  "BlockingLevel": "operation",
+  "Timeout": 120000,
+  "CheckingInterval": 3000,
+  "Cleanup": true,
+  "Operations": [
+    {
+      "Pods": {
+        "Actions": [
+          {
+            "Act": "CREATE",
+            "Spec": {
+              "ImagePullPolicy": "IfNotPresent",
+              "Image": "usman476/coap:latest",
+              "YamlSpec": "./config/default/coap-pod-object.yaml"
+            }
+          },
+          {
+            "Act": "LIST"
+          },
+          {
+            "Act": "UPDATE"
+          },
+          {
+            "Act": "DELETE"
+          }
+        ],
+        "SleepTimes": [
+          40000,
+          600,
+          6000,
+          6000
+        ],
+        "Count": 128,
+        "ContainerNamePrefix": "data-plane-"
+      },
+      "RepeatTimes": 2
+    }
+  ]
+}

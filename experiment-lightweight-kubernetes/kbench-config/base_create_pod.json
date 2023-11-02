@@ -1,0 +1,28 @@
+{
+  "BlockingLevel": "operation",
+  "Timeout": 120000,
+  "CheckingInterval": 3000,
+  "Cleanup": true,
+  "Operations": [
+    {
+      "Pods": {
+        "Actions": [
+          {
+            "Act": "CREATE",
+            "Spec": {
+              "ImagePullPolicy": "IfNotPresent",
+              "Image": "usman476/coap:latest",
+              "YamlSpec": "./config/default/coap-pod-object.yaml"
+            }
+          }
+        ],
+        "SleepTimes": [
+          24000
+        ],
+        "Count": 64,
+        "ContainerNamePrefix": "64pod-control-"
+      },
+      "RepeatTimes": 0
+    }
+  ]
+}
