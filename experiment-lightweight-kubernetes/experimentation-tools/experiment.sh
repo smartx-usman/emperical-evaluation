@@ -59,7 +59,6 @@ echo -e "$Yellow Waiting for $monitoring_wait seconds to measure idle usage." >&
 sleep $monitoring_wait
 
 # Determine the number of pods/deployments to create
-#deployment_file="./config/default/coap-${type}-${workers}worker.yaml"
 deployment_file="./config/default/coap-${type}-object.yaml"
 
 if [ "$type" = "pod" ] && [ "$workers" = 1 ]; then
@@ -85,7 +84,7 @@ elif  [ "$type" = "deployment" ] && [ "$workers" = 3 ]; then
   if [ "$operation" = "create" ]; then
     objects=(40)
   fi
-  yq e 'del(.spec.nodeSelector)' "${BASE_PATH}/${CONFIG_PATH}/coap-${type}.yaml" > "${BASE_PATH}/${CONFIG_PATH}/coap-${type}-object.yaml"
+  yq e 'del(.spec.template.spec.nodeSelector)' "${BASE_PATH}/${CONFIG_PATH}/coap-${type}.yaml" > "${BASE_PATH}/${CONFIG_PATH}/coap-${type}-object.yaml"
 else
   echo "Invalid argument. Please enter correct number of workers."
   exit 1
@@ -146,8 +145,5 @@ else
       scp -r "${host}:su_${host}.txt"  $OUTPUT_PATH
   done
 fi
-
-# Copy system usage file to the directory
-
 
 echo -e "$BBlue All experiments are completed. Exiting Normally." >&3
