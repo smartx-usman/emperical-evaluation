@@ -5,9 +5,9 @@ source ./configurator.sh
 
 # Check for the number of command-line arguments
 if [ "$#" -ne 4 ]; then
-    echo "Usage: $0 <operation> <object_type> <no_of_workers> <repetitions>"
-    echo "E.g., ./experiment.sh create deployment 1 0"
-    echo "E.g., ./experiment.sh all pods 3 2"
+    echo "$Yellow Usage: $0 <operation> <object_type> <no_of_workers> <repetitions>" >&3
+    echo "$Yellow E.g., ./experiment.sh create deployment 1 0" >&3
+    echo "$Yellow E.g., ./experiment.sh all pod 3 2" >&3
     exit 1
 fi
 
