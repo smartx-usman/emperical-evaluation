@@ -102,9 +102,8 @@ if [ "$type" = "pod" ]; then
     jq --arg new_deployment "$deployment_file" '.Operations[0].Pods.Actions[0].Spec.YamlSpec = ($new_deployment | tostring)' temp2.json > temp1.json
     mv temp1.json "${CONFIG_PATH}/kbench_config.json"
 
-    kbench -kubeconfig /var/snap/microk8s/current/credentials/client.config -benchconfig "${CONFIG_PATH}/kbench_config.json" -outdir $OUTPUT_PATH
-    #kbench -benchconfig config/default/base_pod_1worker_config.json -outdir $OUTPUT_PATH
-
+    #kbench -kubeconfig /var/snap/microk8s/current/credentials/client.config -benchconfig "${CONFIG_PATH}/kbench_config.json" -outdir $OUTPUT_PATH
+    kbench -benchconfig "${CONFIG_PATH}/kbench_config.json" -outdir $OUTPUT_PATH
     mv "${OUTPUT_PATH}/kbench.log" "${OUTPUT_PATH}/${object}${type}.log"
 
     echo -e "$BBlue Ending experiment with ${object} ${type}(s)" >&3
@@ -121,7 +120,8 @@ elif [ "$type" = "deployment" ]; then
     jq --arg new_deployment "$deployment_file" '.Operations[0].Deployments.Actions[0].Spec.YamlSpec = ($new_deployment | tostring)' temp2.json > temp1.json
     mv temp1.json "${CONFIG_PATH}/kbench_config.json"
 
-    kbench -kubeconfig /var/snap/microk8s/current/credentials/client.config -benchconfig "${CONFIG_PATH}/kbench_config.json" -outdir $OUTPUT_PATH
+    #kbench -kubeconfig /var/snap/microk8s/current/credentials/client.config -benchconfig "${CONFIG_PATH}/kbench_config.json" -outdir $OUTPUT_PATH
+    kbench -benchconfig "${CONFIG_PATH}/kbench_config.json" -outdir $OUTPUT_PATH
     mv "${OUTPUT_PATH}/kbench.log" "${OUTPUT_PATH}/${object}${type}.log"
 
     echo -e "$BBlue Ending experiment with ${object} ${type}(s)" >&3

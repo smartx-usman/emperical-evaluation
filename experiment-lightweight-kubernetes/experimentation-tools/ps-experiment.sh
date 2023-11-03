@@ -72,7 +72,8 @@ do
   jq --arg new_deployment "$deployment_file" '.Operations[0].Pods.Actions[0].Spec.YamlSpec = ($new_deployment | tostring)' temp2.json > temp1.json
   mv temp1.json "${CONFIG_PATH}/kbench_config.json"
 
-  kbench -kubeconfig /var/snap/microk8s/current/credentials/client.config -benchconfig "${CONFIG_PATH}/kbench_config.json" -outdir $OUTPUT_PATH
+  #kbench -kubeconfig /var/snap/microk8s/current/credentials/client.config -benchconfig "${CONFIG_PATH}/kbench_config.json" -outdir $OUTPUT_PATH
+  kbench -benchconfig "${CONFIG_PATH}/kbench_config.json" -outdir $OUTPUT_PATH
   mv "${OUTPUT_PATH}/kbench.log" "${OUTPUT_PATH}/${experiment}pod.log"
 
   echo -e "$BBlue Ending experiment with ${experiment} Pod(s)" >&3
