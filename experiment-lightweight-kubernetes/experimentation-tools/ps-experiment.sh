@@ -4,16 +4,19 @@
 source ./configurator.sh
 
 # Check for the number of command-line arguments
-if [ "$#" -ne 3 ]; then
-    echo "Usage: $0 <kubernetes_distribution> <no_of_workers> <experiment_repetitions>"
-    echo "E.g., ./ps-experiment.sh microk8s 1 0"
-    echo "E.g., ./ps-experiment.sh microk8s 3 3"
+if [ "$#" -ne 4 ]; then
+    echo "Usage: $0 <kubernetes_distribution> <object_type> <no_of_workers> <experiment_repetitions>"
+    echo "E.g., ./ps-experiment.sh microk8s pod 1 0"
+    echo "E.g., ./ps-experiment.sh microk8s deployment 3 3"
     exit 1
 fi
 
-workers=$1
-repetitions=$2
-distribution=$3
+distribution=$1
+type=$2
+workers=$3
+repetitions=$4
+
+LOCAL_SCRIPT="${BASE_PATH}/monitor-ps.sh"
 
 # Create output directory
 let "total_runs = repetitions + 1"
@@ -36,11 +39,26 @@ if [ "$workers" = 1 ]; then
   for ((i = 0; i < 2; i++))
   do
       host="${REMOTE_HOSTS[i]}"
-      ssh -f -n "${host}" "bash ~/$(basename $LOCAL_SCRIPT) $distribution $host $execute_count 5"
+
+      # Determine the mode (master or worker) of the host
+      if [[ $host =~ [0-9]$ ]]; then
+          mode="${host%?}"
+      else
+        mode="${host}"
+      fi
+
+      ssh -f -n "${host}" "bash ~/$(basename $LOCAL_SCRIPT) $distribution $mode $execute_count 5"
   done
 else
   for host in "${REMOTE_HOSTS[@]}"; do
-      ssh -f -n "$host" "bash ~/$(basename $LOCAL_SCRIPT) $distribution $host $execute_count 5"
+      # Determine the mode (master or worker) of the host
+      if [[ $host =~ [0-9]$ ]]; then
+          mode="${host%?}"
+      else
+        mode="${host}"
+      fi
+
+      ssh -f -n "$host" "bash ~/$(basename $LOCAL_SCRIPT) $distribution $mode $execute_count 5"
   done
 fi
 
@@ -57,7 +75,6 @@ if [ "$workers" = 1 ]; then
   experiments=(60)
 elif [ "$workers" = 3 ]; then
   experiments=(180)
-  #deployment_file="./config/default/coap-pod-3worker.yaml"
 else
   echo "Invalid argument. Please enter correct number of workers."
   exit 1
@@ -90,13 +107,24 @@ COMMAND="pkill -f monitor-ps.sh || true"
 
 if [ "$workers" = 1 ]; then
   for ((i = 0; i < 2; i++)); do
-      ssh "${REMOTE_HOSTS[i]}" "$COMMAND"
-      scp -r "${REMOTE_HOSTS[i]}:pu_*"  $OUTPUT_PATH
+    if ssh "${REMOTE_HOSTS[i]}" "$COMMAND"; then
+      #ssh "${REMOTE_HOSTS[i]}" "$COMMAND"
+      echo "pkill command executed successfully"
+    else
+      echo "pkill command returned a non-zero exit code, but the script continues."
+    fi
+      scp -r "${REMOTE_HOSTS[i]}:pu_*" $OUTPUT_PATH
   done
 else
   for host in "${REMOTE_HOSTS[@]}"; do
-      ssh "${host}" "$COMMAND"
-      scp -r "${host}:pu_*"  $OUTPUT_PATH
+    #ssh "${host}" "$COMMAND"
+    if ssh "${host}" "$COMMAND"; then
+    #ssh "${REMOTE_HOSTS[i]}" "$COMMAND"
+      echo "pkill command executed successfully"
+    else
+      echo "pkill command returned a non-zero exit code, but the script continues."
+    fi
+      scp -r "${host}:pu_*" $OUTPUT_PATH
   done
 fi
 
