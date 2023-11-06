@@ -74,19 +74,25 @@ elif  [ "$type" = "pod" ] && [ "$workers" = 3 ]; then
   fi
   yq e 'del(.spec.nodeSelector)' "${BASE_PATH}/${CONFIG_PATH}/coap-${type}.yaml" > "${BASE_PATH}/${CONFIG_PATH}/coap-${type}-object.yaml"
 elif [ "$type" = "deployment" ] && [ "$workers" = 1 ]; then
-  objects=(1 2 4 8 16 20)
+  cp "${BASE_PATH}/${CONFIG_PATH}/coap-${type}.yaml" "${BASE_PATH}/${CONFIG_PATH}/coap-${type}-object.yaml"
+
   if [ "$operation" = "create" ]; then
     objects=(20)
+  else
+    objects=(1 2 4 8 16 20)
+    yq e '.spec.replicas = 2' -i "${BASE_PATH}/${CONFIG_PATH}/coap-${type}-object.yaml"  # Reduce replicas due to scale operation
   fi
-  cp "${BASE_PATH}/${CONFIG_PATH}/coap-${type}.yaml" "${BASE_PATH}/${CONFIG_PATH}/coap-${type}-object.yaml"
-  yq e '.spec.replicas = 2' -i "${BASE_PATH}/${CONFIG_PATH}/coap-${type}-object.yaml"
+
 elif  [ "$type" = "deployment" ] && [ "$workers" = 3 ]; then
-  objects=(1 2 4 8 16 20 32 40 64)
+  yq e 'del(.spec.template.spec.nodeSelector)' "${BASE_PATH}/${CONFIG_PATH}/coap-${type}.yaml" > "${BASE_PATH}/${CONFIG_PATH}/coap-${type}-object.yaml"
+
   if [ "$operation" = "create" ]; then
     objects=(40)
+  else
+    objects=(1 2 4 8 16 20 32 40 64)
+    yq e '.spec.replicas = 2' -i "${BASE_PATH}/${CONFIG_PATH}/coap-${type}-object.yaml"  # Reduce replicas due to scale operation
   fi
-  yq e 'del(.spec.template.spec.nodeSelector)' "${BASE_PATH}/${CONFIG_PATH}/coap-${type}.yaml" > "${BASE_PATH}/${CONFIG_PATH}/coap-${type}-object.yaml"
-  yq e '.spec.replicas = 2' -i "${BASE_PATH}/${CONFIG_PATH}/coap-${type}-object.yaml"
+
 else
   echo "Invalid argument. Please enter correct number of workers."
   exit 1
