@@ -136,11 +136,11 @@ elif [ "$type" = "deployment" ]; then
   done
 fi
 
-# Wait for few more minutes before removing monitoring process
+# Wait for few more minutes before removing monitoring processes
 echo -e "$Yellow Waiting for $monitoring_wait seconds to clean up monitoring jobs." >&3
 sleep $monitoring_wait
 
-# Loop through the remote hosts and remove monitoring process and copy files
+# Loop through the remote hosts and remove monitoring processes and copy files
 if [ "$workers" = 1 ]; then
   for ((i = 0; i < 2; i++)); do
       ssh "${REMOTE_HOSTS[i]}" "pkill sar || true"
