@@ -37,8 +37,8 @@ if [ "$node" = "worker" ]; then
     done
   else
     for ((i = 1; i <= iterations; i++)); do
-      pidstat -r -h -C "kubelet|containerd|k0s|konnectivity" | grep -E -v "containerd-shim" >> "pu_memory_${host}.txt" &
-      pidstat -u -h -C "kubelet|containerd|k0s|konnectivity" | grep -E -v "containerd-shim" >> "pu_cpu_${host}.txt" &
+      pidstat -r -h -C "kubelet|containerd|k0s|konnectivity|calico-node" | grep -E -v "containerd-shim" >> "pu_memory_${host}.txt" &
+      pidstat -u -h -C "kubelet|containerd|k0s|konnectivity|calico-node" | grep -E -v "containerd-shim" >> "pu_cpu_${host}.txt" &
       sleep $wait_time
     done
   fi
@@ -51,8 +51,8 @@ elif [ "$node" = "master" ]; then
     done
   else
     for ((i = 1; i <= iterations; i++)); do
-      pidstat -r -h -C "etcd|kube-apiserver|k0s|konnectivity" >> "pu_memory_${host}.txt" &
-      pidstat -u -h -C "etcd|kube-apiserver|k0s|konnectivity" >> "pu_cpu_${host}.txt" &
+      pidstat -r -h -C "etcd|kube-apiserver|k0s|konnectivity|calico-node" >> "pu_memory_${host}.txt" &
+      pidstat -u -h -C "etcd|kube-apiserver|k0s|konnectivity|calico-node" >> "pu_cpu_${host}.txt" &
       sleep $wait_time
     done
   fi
