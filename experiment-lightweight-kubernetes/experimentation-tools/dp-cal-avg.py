@@ -48,7 +48,7 @@ for i in (0, 1, 2, 3):
     elif i == 1:
         print(f"Average Latency from all experiments[clients: 100 requests: 500]: {average_latency_sec:.2f} seconds")
         print(f"Average Throughput from all experiments[clients: 100 requests: 500]: {average_throughput:.2f} \n")
-    elif i == 1:
+    elif i == 2:
         print(f"Average Latency from all experiments[clients: 100 requests: 1000]: {average_latency_sec:.2f} seconds")
         print(f"Average Throughput from all experiments[clients: 100 requests: 1000]: {average_throughput:.2f} \n")
     else:
