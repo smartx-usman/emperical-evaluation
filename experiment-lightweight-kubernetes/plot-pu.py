@@ -81,7 +81,7 @@ def process_data():
     k3s_services = ['Etcd', 'Kube-apiserver', 'Kubelet', 'Containerd']
     openshift_services = ['Etcd', 'Kube-apiserver', 'Kubelet', 'Containerd']
 
-    for distribution in ('Microk8s', 'abc'):
+    for distribution in ('Microk8s', 'K0s'):
         if distribution == 'Microk8s':
             color = 'tab:blue'
             path = files_path[0]
@@ -104,54 +104,54 @@ def process_data():
 
 
 def call_plot(path, distribution, color, services):
-    cpu_usage(input_file=f'{path}/pu_cpu_master.csv', axs_row=0, axs_col=0,
+    cpu_usage(input_file=f'{path}/pu_cpu_master1.csv', axs_row=0, axs_col=0,
               title=f'Store Service (CPU)',
-              x_label="Timestamp", y_label="Usage (%)", y_lim_start=0, y_lim_end=15, legend_set=False,
+              x_label="", y_label="Usage (%)", y_lim_start=0, y_lim_end=15, legend_set=False,
               set_x_label=True, label=distribution, color=color, service=services[0])
 
-    memory_usage(input_file=f'{path}/pu_memory_master.csv', axs_row=0, axs_col=1,
+    memory_usage(input_file=f'{path}/pu_memory_master1.csv', axs_row=0, axs_col=1,
                  title=f'Store Service (Memory)',
-                 x_label="Timestamp", y_label="Usage (MBytes)", y_lim_start=0, y_lim_end=900,
+                 x_label="", y_label="Usage (MBytes)", y_lim_start=0, y_lim_end=900,
                  legend_set=False, set_x_label=True, label=distribution, color=color, service=services[0])
 
-    cpu_usage(input_file=f'{path}/pu_cpu_master.csv', axs_row=1, axs_col=0,
+    cpu_usage(input_file=f'{path}/pu_cpu_master1.csv', axs_row=1, axs_col=0,
               title=f'API Service (CPU)',
-              x_label="Timestamp", y_label="Usage (%)", y_lim_start=0, y_lim_end=25, legend_set=False,
+              x_label="", y_label="Usage (%)", y_lim_start=0, y_lim_end=25, legend_set=False,
               set_x_label=True, label=distribution, color=color, service=services[1])
 
-    memory_usage(input_file=f'{path}/pu_memory_master.csv', axs_row=1, axs_col=1,
+    memory_usage(input_file=f'{path}/pu_memory_master1.csv', axs_row=1, axs_col=1,
                  title=f'API Service (Memory)',
-                 x_label="Timestamp", y_label="Usage (MBytes)", y_lim_start=0, y_lim_end=1000,
+                 x_label="", y_label="Usage (MBytes)", y_lim_start=0, y_lim_end=1200,
                  legend_set=False, set_x_label=True, label=distribution, color=color, service=services[1])
 
     cpu_usage(input_file=f'{path}/pu_cpu_worker1.csv', axs_row=2, axs_col=0,
               title=f'{services[2]} Service (CPU)',
-              x_label="Timestamp (sec)", y_label="Usage (%)", y_lim_start=0, y_lim_end=10, legend_set=False,
+              x_label="", y_label="Usage (%)", y_lim_start=0, y_lim_end=5, legend_set=False,
               set_x_label=True, label=distribution, color=color, service=services[2])
 
     memory_usage(input_file=f'{path}/pu_memory_worker1.csv', axs_row=2, axs_col=1,
                  title=f'{services[2]} Service (Memory)',
-                 x_label="Timestamp (sec)", y_label="Usage (MBytes)", y_lim_start=0, y_lim_end=256,
+                 x_label="", y_label="Usage (MBytes)", y_lim_start=0, y_lim_end=256,
                  legend_set=False, set_x_label=True, label=distribution, color=color, service=services[2])
 
     cpu_usage(input_file=f'{path}/pu_cpu_worker1.csv', axs_row=3, axs_col=0,
               title=f'{services[3]} Service (CPU)',
-              x_label="Timestamp (sec)", y_label="Usage (%)", y_lim_start=0, y_lim_end=10, legend_set=False,
+              x_label="Time (sec)", y_label="Usage (%)", y_lim_start=0, y_lim_end=5, legend_set=False,
               set_x_label=True, label=distribution, color=color, service=services[3])
 
     memory_usage(input_file=f'{path}/pu_memory_worker1.csv', axs_row=3, axs_col=1,
                  title=f'{services[3]} Service (Memory)',
-                 x_label="Timestamp (sec)", y_label="Usage (MBytes)", y_lim_start=0, y_lim_end=256,
+                 x_label="Time (sec)", y_label="Usage (MBytes)", y_lim_start=0, y_lim_end=256,
                  legend_set=True, set_x_label=True, label=distribution, color=color, service=services[3])
 
     # cpu_usage(input_file=f'{path}/pu_cpu_master.csv', axs_row=4, axs_col=0,
     #           title=f'Network Service (CPU)',
-    #           x_label="Timestamp (sec)", y_label="Usage (%)", y_lim_start=0, y_lim_end=10, legend_set=False,
+    #           x_label="Time (sec)", y_label="Usage (%)", y_lim_start=0, y_lim_end=10, legend_set=False,
     #           set_x_label=True, label=distribution, color=color, service=services[4])
     #
     # memory_usage(input_file=f'{path}/pu_memory_master.csv', axs_row=4, axs_col=1,
     #              title=f'Network Service (Memory)',
-    #              x_label="Timestamp (sec)", y_label="Usage (MBytes)", y_lim_start=0, y_lim_end=900,
+    #              x_label="Time (sec)", y_label="Usage (MBytes)", y_lim_start=0, y_lim_end=900,
     #              legend_set=False, set_x_label=True, label=distribution, color=color, service=services[4])
 
 
