@@ -25,9 +25,12 @@ class Plots:
         self.sharey = sharey
         self.legend_columns = legend_columns
         plt.rcParams["figure.figsize"] = [width, height]
-        #self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey)
-        # Uncomment for rows=1 and cols=2 or more
-        self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey, squeeze=False)
+
+        if no_of_rows == 1 and no_of_cols == 2:
+            # Uncomment for rows=1 and cols=2 or more
+            self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey, squeeze=False)
+        else:
+            self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey)
 
     def timeline_plot(self, df, x_col, y_col, label, axs_row, axs_col, title, x_label, y_label, y_lim_start, y_lim_end,
                       legend_set, set_x_label, color):
