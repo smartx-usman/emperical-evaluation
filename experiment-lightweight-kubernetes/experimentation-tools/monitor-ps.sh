@@ -28,31 +28,67 @@ host=$(hostname)
 # Check if the output file already exists, then remove them
 find "$HOME_PATH" -type f -name "pu_*" -exec rm {} \;
 
+microk8s_master_processes="k8s-dqlite|kubelite|calico-node"
+microk8s_worker_processes="kubelite|containerd|calico-node"
+
+k0s_master_processes="etcd|kube-apiserver|k0s|konnectivity|calico-node|metrics-server"
+k0s_worker_processes="kubelet|containerd|k0s|konnectivity|calico-node"
+
+k3s_master_processes="kubelet|containerd|k3s-server|traefik|metrics-server"
+k3s_worker_processes="kubelet|containerd|k3s-agent|traefik|calico-node"
+
+openshift_master_processes=""
+openshift_worker_processes=""
+
 if [ "$node" = "worker" ]; then
   if [ "$distribution" = "microk8s" ]; then
     for ((i = 1; i <= iterations; i++)); do
-      pidstat -r -h -C "kubelite|containerd|calico-node" | grep -E -v "containerd-shim" >> "pu_memory_${host}.txt" &
-      pidstat -u -h -C "kubelite|containerd|calico-node" | grep -E -v "containerd-shim" >> "pu_cpu_${host}.txt" &
+      pidstat -r -h -C $microk8s_worker_processes | grep -E -v "containerd-shim" >> "pu_memory_${host}.txt" &
+      pidstat -u -h -C $microk8s_worker_processes | grep -E -v "containerd-shim" >> "pu_cpu_${host}.txt" &
+      sleep $wait_time
+    done
+  elif [ "$distribution" = "k0s" ]; then
+    for ((i = 1; i <= iterations; i++)); do
+      pidstat -r -h -C  $k0s_worker_processes | grep -E -v "containerd-shim" >> "pu_memory_${host}.txt" &
+      pidstat -u -h -C $k0s_worker_processes | grep -E -v "containerd-shim" >> "pu_cpu_${host}.txt" &
+      sleep $wait_time
+    done
+  elif [ "$distribution" = "k3s" ]; then
+    for ((i = 1; i <= iterations; i++)); do
+      pidstat -r -h -C  $k3s_worker_processes | grep -E -v "containerd-shim" >> "pu_memory_${host}.txt" &
+      pidstat -u -h -C $k3s_worker_processes | grep -E -v "containerd-shim" >> "pu_cpu_${host}.txt" &
       sleep $wait_time
     done
   else
     for ((i = 1; i <= iterations; i++)); do
-      pidstat -r -h -C "kubelet|containerd|k0s|konnectivity|calico-node" | grep -E -v "containerd-shim" >> "pu_memory_${host}.txt" &
-      pidstat -u -h -C "kubelet|containerd|k0s|konnectivity|calico-node" | grep -E -v "containerd-shim" >> "pu_cpu_${host}.txt" &
+      pidstat -r -h -C "kubelet|containerd" | grep -E -v "containerd-shim" >> "pu_memory_${host}.txt" &
+      pidstat -u -h -C "kubelet|containerd" | grep -E -v "containerd-shim" >> "pu_cpu_${host}.txt" &
       sleep $wait_time
     done
   fi
 elif [ "$node" = "master" ]; then
   if [ "$distribution" = "microk8s" ]; then
     for ((i = 1; i <= iterations; i++)); do
-      pidstat -r -h -C "k8s-dqlite|kubelite|calico-node" >> "pu_memory_${host}.txt" &
-      pidstat -u -h -C "k8s-dqlite|kubelite|calico-node" >> "pu_cpu_${host}.txt" &
+      pidstat -r -h -C $microk8s_master_processes >> "pu_memory_${host}.txt" &
+      pidstat -u -h -C $microk8s_master_processes >> "pu_cpu_${host}.txt" &
+      sleep $wait_time
+    done
+  elif [ "$distribution" = "k0s" ]; then
+    for ((i = 1; i <= iterations; i++)); do
+      pidstat -r -h -C  $k0s_master_processes | grep -E -v "containerd-shim" >> "pu_memory_${host}.txt" &
+      pidstat -u -h -C $k0s_master_processes | grep -E -v "containerd-shim" >> "pu_cpu_${host}.txt" &
+      sleep $wait_time
+    done
+  elif [ "$distribution" = "k3s" ]; then
+    for ((i = 1; i <= iterations; i++)); do
+      pidstat -r -h -C  $k3s_master_processes | grep -E -v "containerd-shim" >> "pu_memory_${host}.txt" &
+      pidstat -u -h -C $k3s_master_processes | grep -E -v "containerd-shim" >> "pu_cpu_${host}.txt" &
       sleep $wait_time
     done
   else
     for ((i = 1; i <= iterations; i++)); do
-      pidstat -r -h -C "etcd|kube-apiserver|k0s|konnectivity|calico-node" >> "pu_memory_${host}.txt" &
-      pidstat -u -h -C "etcd|kube-apiserver|k0s|konnectivity|calico-node" >> "pu_cpu_${host}.txt" &
+      pidstat -r -h -C "etcd|kube-apiserver" >> "pu_memory_${host}.txt" &
+      pidstat -u -h -C "etcd|kube-apiserver" >> "pu_cpu_${host}.txt" &
       sleep $wait_time
     done
   fi
