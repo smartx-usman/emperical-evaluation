@@ -34,7 +34,7 @@ microk8s_worker_processes="kubelite|containerd|calico-node"
 k0s_master_processes="etcd|kube-apiserver|k0s|konnectivity|calico-node|metrics-server"
 k0s_worker_processes="kubelet|containerd|k0s|konnectivity|calico-node"
 
-k3s_master_processes="kubelet|containerd|k3s-server|traefik|metrics-server"
+k3s_master_processes="kubelet|k3s-server|traefik|metrics-server"
 k3s_worker_processes="kubelet|containerd|k3s-agent|traefik|calico-node"
 
 openshift_master_processes=""
