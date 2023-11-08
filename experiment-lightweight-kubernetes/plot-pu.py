@@ -81,7 +81,7 @@ def process_data():
     k3s_services = ['Etcd', 'Kube-apiserver', 'Kubelet', 'Containerd']
     openshift_services = ['Etcd', 'Kube-apiserver', 'Kubelet', 'Containerd']
 
-    for distribution in ('Microk8s', 'K0s'):
+    for distribution in ('Microk8s', 'K0s', 'K3s'):
         if distribution == 'Microk8s':
             color = 'tab:blue'
             path = files_path[0]
@@ -90,14 +90,17 @@ def process_data():
         elif distribution == 'K0s':
             color = 'tab:orange'
             path = files_path[1]
-
             call_plot(path=path, distribution=distribution, color=color, services=k0s_services)
 
         elif distribution == 'K3s':
             color = 'tab:gray'
+            path = files_path[2]
+            call_plot(path=path, distribution=distribution, color=color, services=k3s_services)
 
         elif distribution == 'OpenShift':
             color = 'tab:olive'
+            path = files_path[3]
+            call_plot(path=path, distribution=distribution, color=color, services=openshift_services)
 
         else:
             continue
@@ -160,7 +163,7 @@ workers = 3  # 1, 2, 3, 4, 5
 replicas = 3  # 1, 3
 run = 1
 deployment = 'pod'  # 'pod' or 'deployment'
-files_path = [f'microk8s/pu_{workers}worker_{run}run', f'k0s/pu_{workers}worker_{run}run']
+files_path = [f'microk8s/pu_{workers}worker_{run}run', f'k0s/pu_{workers}worker_{run}run', f'k3s/pu_{workers}worker_{run}run']
 
 process_data()
 
