@@ -4,16 +4,19 @@ import sys
 
 data = 'all'  # 'all' or 'services'
 deployment = 'deployment'  # 'pod' or 'deployment'
+distribution = 'k3s'
 workers = 1  # 1, 2, 3, 4, 5
+run = 3  # 1, 3
 
-# files_path = f'system_usage_baseline'
-files_path = f'microk8s/{deployment}_{workers}worker_3run'
-# files_path = f'k0s/pu_{workers}worker_3run'
+#files_path = f'system_usage_baseline'
+#files_path = f'{distribution}/system_usage_idle'
+files_path = f'{distribution}/{deployment}_{workers}worker_{run}run'
+#files_path = f'{distribution}/pu_{workers}worker_{run}run'
 # files_path = f'microk8s/dp_1replica_{workers}worker'
 
-#input_file_list = ['pu_cpu_master', 'pu_cpu_worker1', 'pu_memory_master', 'pu_memory_worker1']
-#input_file_list = ['su_master', 'su_worker1', 'su_worker2', 'su_worker3']
-input_file_list = ['su_master', 'su_worker1']
+#input_file_list = ['pu_cpu_master1', 'pu_cpu_worker1', 'pu_memory_master1', 'pu_memory_worker1']
+input_file_list = ['su_master', 'su_worker1', 'su_worker2', 'su_worker3']
+#input_file_list = ['su_master', 'su_worker1']
 
 
 def process_file_all(input_file_path, output_file_path):
@@ -100,7 +103,7 @@ for input_file in input_file_list:
         command = (
             f"grep -vE 'cali.*|vxlan.*|loop*' '{files_path}/{input_file}.txt' > temp1 && "
             "grep -v 'Average' temp1 > temp2 && "
-            "grep -Ev '(lo|kube-bridge|veth.*)' temp2 > temp3 && "
+            "grep -Ev '(lo|kube-bridge|flannel.1|cni0|veth.*)' temp2 > temp3 && "
             "awk 'NR>1' temp3 > temp4 && "
             f"awk 'NF > 0' temp4 > '{files_path}/{input_file}_formatted.txt' && "
             "rm temp*"
