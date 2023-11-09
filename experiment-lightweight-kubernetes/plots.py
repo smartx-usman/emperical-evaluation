@@ -70,6 +70,31 @@ class Plots:
 
         self.fig.tight_layout()
 
+    def time_instance_stack_plot(self, df, axs_row, axs_col, title, x_label, y_label, y_lim_start,
+                    y_lim_end, legend_set, set_x_label, color):
+        self.axs[axs_row, axs_col].set_title(title)
+        if set_x_label:
+            self.axs[axs_row, axs_col].set_xlabel(x_label)
+        self.axs[axs_row, axs_col].set_ylabel(y_label)
+
+        if color == '':
+            df.plot(ax=self.axs[axs_row, axs_col], kind='line', stacked=True, colormap='YIOrBr')
+        else:
+            df.plot(ax=self.axs[axs_row, axs_col], kind='line', stacked=True, colormap=color)
+
+        # Enable grid lines using Matplotlib
+        self.axs[axs_row, axs_col].grid(True, linestyle='-', alpha=0.5, axis='y')
+
+        # Set the y-axis limits (ylim)
+        self.axs[axs_row, axs_col].set_ylim(y_lim_start, y_lim_end)
+
+        if legend_set:
+            self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper left', bbox_to_anchor=(1, 1))
+        else:
+            self.axs[axs_row, axs_col].get_legend().remove()  # Remove legend in each subplot
+
+        self.fig.tight_layout()
+
     def simple_line_plot(self, x_data, y_data, title, x_label, y_label, y_lim_start, y_lim_end, label, color):
         plt.title(title)
         plt.xlabel(x_label)
