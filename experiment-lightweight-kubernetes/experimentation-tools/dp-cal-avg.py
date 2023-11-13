@@ -37,22 +37,22 @@ for i in (0, 1, 2, 3):
     # Convert the found values to float and calculate the average
     average_latencies = [float(latency) for latency in average_latencies]
     average_latency = sum(average_latencies) / len(average_latencies)
-    average_latency_sec = average_latency * 100
+    average_latency_milli_sec = average_latency * 1000
 
     average_throughput = [float(throughput) for throughput in average_throughput]
     average_throughput = sum(average_throughput) / len(average_throughput)
 
     if i == 0:
-        print(f"Average Latency from all experiments[clients: 100 requests: 10]: {average_latency_sec:.2f} seconds")
+        print(f"Average Latency from all experiments[clients: 100 requests: 10]: {average_latency_milli_sec:.2f} ms")
         print(f"Average Throughput from all experiments[clients: 100 requests: 10]: {average_throughput:.2f} \n")
     elif i == 1:
-        print(f"Average Latency from all experiments[clients: 100 requests: 500]: {average_latency_sec:.2f} seconds")
+        print(f"Average Latency from all experiments[clients: 100 requests: 500]: {average_latency_milli_sec:.2f} ms")
         print(f"Average Throughput from all experiments[clients: 100 requests: 500]: {average_throughput:.2f} \n")
     elif i == 2:
-        print(f"Average Latency from all experiments[clients: 100 requests: 1000]: {average_latency_sec:.2f} seconds")
+        print(f"Average Latency from all experiments[clients: 100 requests: 1000]: {average_latency_milli_sec:.2f} ms")
         print(f"Average Throughput from all experiments[clients: 100 requests: 1000]: {average_throughput:.2f} \n")
     else:
-        print(f"Average Latency from all experiments[clients: 100 requests: 1500]: {average_latency_sec:.2f} seconds")
+        print(f"Average Latency from all experiments[clients: 100 requests: 1500]: {average_latency_milli_sec:.2f} ms")
         print(f"Average Throughput from all experiments[clients: 100 requests: 1500]: {average_throughput:.2f} \n")
 
 # Remove intermediate data files
