@@ -9,14 +9,14 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 # Subplots layout
-no_of_rows = 1
-no_of_cols = 1
+no_of_rows = 2
+no_of_cols = 2
 sharex = 'none'
 sharey = 'none'
 legend_columns = 2
 figure_width = 8.0  # inches
-figure_height = 4.0  # inches for single row charts
-#figure_height = 6.0  # inches for two row charts
+#figure_height = 4.0  # inches for single row charts
+figure_height = 6.0  # inches for two row charts
 #figure_height = 5.0  # inches
 #figure_height = 5.5  # inches
 
@@ -29,15 +29,12 @@ def seaborn_bar_plot_process():
     data_deployment = []
     data_rest = []
 
-    latency_data_1replica = []
-    throughput_data_1replica = []
-    latency_data_3replica = []
-    throughput_data_3replica = []
+
 
     if deployment == 'deployment':
         metrics = ['Median', 'Min', 'Max']
         #k8s_distributions = ['Microk8s', 'K0s', 'K3s', 'Openshift']
-        k8s_distributions = ['Microk8s', 'K0s']
+        k8s_distributions = ['Microk8s', 'K0s', 'K3s']
         operations_dep = ['create', 'list', 'update', 'scale', 'delete']
         data_deployment_values = [
             # Microk8s deployment API latency results (median, min, max)
@@ -45,8 +42,7 @@ def seaborn_bar_plot_process():
             # k0s deployment API latency results (median, min, max)
             74.524, 39.63, 351.01, 27.04, 2.49, 100.2, 55.98, 8.73, 114.37, 513.29, 9.30, 927.79, 12.25, 4.95, 993.11,
             # k3s deployment API latency results (median, min, max)
-            400.87, 69.06, 700.09, 7.42, 2.19, 11.47, 84.5, 11.47, 988.61, 824.18, 97.72, 1284.52, 619.14, 214.00,
-            1523.73,
+            93.23, 45.67, 234.44, 97.29, 10.21, 184.50, 107.37, 6.59, 210.71, 434.96, 6.45, 941.46, 11.61, 6.01, 490.56,
             # Openshift deployment API latency results (median, min, max)
             250.87, 69.06, 620.09, 7.42, 2.19, 11.47, 84.5, 11.47, 988.61, 824.18, 97.72, 1284.52, 619.14, 214.00,
             1000.73
@@ -68,7 +64,13 @@ def seaborn_bar_plot_process():
                     data_deployment.append(data_dict)
                     pos += 1
 
-    if deployment == 'other':
+        my_plot_object.seaborn_bar_plot(data=data_deployment, x='Operation', y='Value', hue='Distribution',
+                                        x_label='Operation', y_label='API Latency (ms)',
+                                        row_index=0, col_index=0, ylim_start=0, ylim_end=2100,
+                                        error=True, legend=True, format_axis_label='none')
+
+        plt.savefig(f'figures/{deployment}_api_latency_{workers}worker.png', dpi=800)
+    elif deployment == 'other':
         metrics = ['Median', 'Min', 'Max']
         #k8s_distributions = ['Microk8s', 'K0s', 'K3s', 'Openshift']
         k8s_distributions = ['Microk8s', 'K0s', 'K3s']
@@ -100,7 +102,12 @@ def seaborn_bar_plot_process():
                     data_rest.append(data_dict)
                     pos += 1
 
-    if deployment == 'baseline':
+        my_plot_object.seaborn_bar_plot(data=data_rest, x='Operation', y='Value', hue='Distribution',
+                                        x_label='Type of Object', y_label='API Latency (sec)',
+                                        row_index=0, col_index=0, ylim_start=0, ylim_end=20,
+                                        error=True, legend=True, format_axis_label='none')
+        plt.savefig(f'figures/{deployment}_apis_latency.png', dpi=800)
+    elif deployment == 'baseline':
         k8s_distributions = ['Baseline', 'Microk8s', 'K0s', 'K3s', 'Openshift']
         k8s_distributions = ['Baseline', 'Microk8s', 'K0s', 'K3s']
         cluster_nodes = ['master', 'worker1', 'worker2', 'worker3']
@@ -144,82 +151,175 @@ def seaborn_bar_plot_process():
                     else:
                         network_data.append(data_dict)
 
-    if deployment == 'dp-latency':
+        my_plot_object.seaborn_bar_plot(data=cpu_data, x='Node', y='Value', hue='Distribution',
+                                        x_label='Cluster Node', y_label='Average CPU Usage (%)',
+                                        row_index=0, col_index=0, ylim_start=0, ylim_end=20,
+                                        error=False, legend=False, format_axis_label='none')
+        my_plot_object.seaborn_bar_plot(data=memory_data, x='Node', y='Value', hue='Distribution',
+                                        x_label='Cluster Node', y_label='Average Memory Usage (%)',
+                                        row_index=0, col_index=1, ylim_start=0, ylim_end=40,
+                                        error=False, legend=True, format_axis_label='none')
+        my_plot_object.seaborn_bar_plot(data=disk_data, x='Node', y='Value', hue='Distribution',
+                                        x_label='Cluster Node', y_label='Average Disk Usage (%)',
+                                        row_index=1, col_index=0, ylim_start=0, ylim_end=15,
+                                        error=False, legend=False, format_axis_label='none')
+        my_plot_object.seaborn_bar_plot(data=network_data, x='Node', y='Value', hue='Distribution',
+                                        x_label='Cluster Node', y_label='Average Network Usage (txkB/s)',
+                                        row_index=1, col_index=1, ylim_start=0, ylim_end=5,
+                                        error=False, legend=False, format_axis_label='none')
+
+        plt.savefig(f'figures/su_baseline.png', dpi=800)
+    elif deployment == 'dp-latency':
         #k8s_distributions = ['Microk8s', 'K0s', 'K3s', 'Openshift']
-        k8s_distributions = ['Microk8s', 'K0s']
+        k8s_distributions = ['Microk8s', 'K0s', 'K3s']
         requests = ['1000', '50000', '100000', '150000']
         metrics = ['Latency', 'Throughput']
 
-        # format: microk8s-1000, microk8s-50000, microk8s-100000, microk8s-150000, k0s-1000, ...
-        latency_values_1replica = [16.55, 21.15, 21.60, 21.47,
-                                   25.86, 29.06, 27.46, 27.48,
-                                   5, 5, 5, 5,
-                                   5, 5, 5, 5]
+        display = 'both'  # clusterIP, nodePort, both
 
-        throughput_values_1replica = [484.69, 470.79, 431.94, 464.71,
-                                      335.27, 343.93, 354.96, 352.75,
-                                      111, 111, 111, 111,
-                                      111, 111, 111, 111]
+        np_latency_data_1replica, np_throughput_data_1replica = [], []
+        ci_latency_data_1replica, ci_throughput_data_1replica = [], []
+        ci_latency_data_3replica, ci_throughput_data_3replica = [], []
 
-        latency_values_3replica = [5.53, 14.21, 16.21, 18.71,
-                                   7.04, 17.74, 20.75, 24.29,
-                                   2, 3, 4, 3,
-                                   4, 5, 6, 7]
-        throughput_values_3replica = [626.75, 667.83, 584.44, 515.81,
-                                      471.94, 548.26, 475.42, 385.54,
-                                      250, 400, 500, 450,
-                                      111, 111, 111, 111]
+        # format: microk8s-1000, microk8s-50,000, microk8s-100,000, microk8s-150,000, k0s-1000, ...
+        np_latency_1replica = [165.5, 211.5, 216.0, 214.7,
+                               258.6, 290.6, 274.6, 274.8,
+                               157.14, 236.52, 230.00, 227.88,
+                               5, 5, 5, 5]
+
+        np_throughput_1replica = [484.69, 470.79, 431.94, 464.71,
+                                  335.27, 343.93, 354.96, 352.75,
+                                  474.15, 421.26, 433.88, 436.89,
+                                  111, 111, 111, 111]
+
+        ci_latency_1replica = [165.5, 211.5, 216.0, 214.7,
+                               258.6, 290.6, 274.6, 274.8,
+                               236.90, 252.90, 255.42, 253.46,
+                               5, 5, 5, 5]
+
+        ci_throughput_1replica = [484.69, 470.79, 431.94, 464.71,
+                                  335.27, 343.93, 354.96, 352.75,
+                                  368.04, 394.11, 389.11, 394.04,
+                                  111, 111, 111, 111]
+
+        ci_latency_3replica = [55.3, 142.1, 162.1, 187.1,
+                               70.4, 177.4, 207.5, 242.9,
+                               33.94, 69.68, 72.94, 74.78,
+                               4, 5, 6, 7]
+        ci_throughput_3replica = [626.75, 667.83, 584.44, 515.81,
+                                  471.94, 548.26, 475.42, 385.54,
+                                  971.10, 995.19, 1137.67, 1151.72,
+                                  111, 111, 111, 111]
 
         pos = 0
 
         for distro in k8s_distributions:
             for request in requests:
                 # Create a dictionary for each combination of values
-                data_dict_latency_1replica = {
-                    'Distribution': distro,
-                    'Request': request,
-                    'Metric': metrics[0],
-                    'Value': latency_values_1replica[pos]
+                ci_dict_latency_1replica = {
+                    'Distribution': distro, 'Request': request, 'Metric': metrics[0], 'Value': ci_latency_1replica[pos]
                 }
 
-                data_dict_throughput_1replica = {
-                    'Distribution': distro,
-                    'Request': request,
-                    'Metric': metrics[1],
-                    'Value': throughput_values_1replica[pos]
+                ci_dict_throughput_1replica = {
+                    'Distribution': distro, 'Request': request, 'Metric': metrics[1], 'Value': ci_throughput_1replica[pos]
                 }
 
-                data_dict_latency_3replica = {
-                    'Distribution': distro,
-                    'Request': request,
-                    'Metric': metrics[0],
-                    'Value': latency_values_3replica[pos]
+                ci_dict_latency_3replica = {
+                    'Distribution': distro, 'Request': request, 'Metric': metrics[0], 'Value': ci_latency_3replica[pos]
                 }
 
-                data_dict_throughput_3replica = {
-                    'Distribution': distro,
-                    'Request': request,
-                    'Metric': metrics[1],
-                    'Value': throughput_values_3replica[pos]
+                ci_dict_throughput_3replica = {
+                    'Distribution': distro, 'Request': request, 'Metric': metrics[1], 'Value': ci_throughput_3replica[pos]
+                }
+
+                np_dict_latency_1replica = {
+                    'Distribution': distro, 'Request': request, 'Metric': metrics[0], 'Value': np_latency_1replica[pos]
+                }
+
+                np_dict_throughput_1replica = {
+                    'Distribution': distro, 'Request': request, 'Metric': metrics[1], 'Value': np_throughput_1replica[pos]
                 }
 
                 # Append the dictionary to the list
-                latency_data_1replica.append(data_dict_latency_1replica)
-                throughput_data_1replica.append(data_dict_throughput_1replica)
-                latency_data_3replica.append(data_dict_latency_3replica)
-                throughput_data_3replica.append(data_dict_throughput_3replica)
+                ci_latency_data_1replica.append(ci_dict_latency_1replica)
+                ci_throughput_data_1replica.append(ci_dict_throughput_1replica)
+                ci_latency_data_3replica.append(ci_dict_latency_3replica)
+                ci_throughput_data_3replica.append(ci_dict_throughput_3replica)
+                np_latency_data_1replica.append(np_dict_latency_1replica)
+                np_throughput_data_1replica.append(np_dict_throughput_1replica)
+
                 pos += 1
 
-    if deployment == 'cp-latency':
-        k8s_distributions = ['Microk8s', 'K0s']#, 'K3s', 'Openshift']
+        if display == 'clusterIP':
+            my_plot_object.seaborn_bar_plot(data=ci_latency_data_1replica, x='Request', y='Value', hue='Distribution',
+                                            x_label='No. of requests', y_label='Latency (ms)', title='ClusterIP Service (1 Replica)',
+                                            row_index=0, col_index=0, ylim_start=0, ylim_end=350, format_axis_label='x')
+            my_plot_object.seaborn_bar_plot(data=ci_throughput_data_1replica, x='Request', y='Value', hue='Distribution',
+                                            x_label='No. of requests', y_label='Throughput (req/sec)', title='ClusterIP Service (1 Replica)',
+                                            row_index=1, col_index=0, ylim_start=0, ylim_end=1250,
+                                            format_axis_label='x')
+            my_plot_object.seaborn_bar_plot(data=ci_latency_data_3replica, x='Request', y='Value', hue='Distribution',
+                                            x_label='No. of requests', y_label='Latency (ms)', title='ClusterIP Service (3 Replicas)',
+                                            row_index=0, col_index=1, ylim_start=0, ylim_end=350, legend=True, format_axis_label='x')
+            my_plot_object.seaborn_bar_plot(data=ci_throughput_data_3replica, x='Request', y='Value', hue='Distribution',
+                                            x_label='No. of requests', y_label='Throughput (req/sec)', title='ClusterIP Service (3 Replicas)',
+                                            row_index=1, col_index=1, ylim_start=0, ylim_end=1400, format_axis_label='x')
+        elif display == 'nodePort':
+            my_plot_object.seaborn_bar_plot(data=np_latency_data_1replica, x='Request', y='Value', hue='Distribution',
+                                            x_label='No. of requests', y_label='Latency (ms)',
+                                            title='ClusterIP Service (1 Replica)',
+                                            row_index=0, col_index=0, ylim_start=0, ylim_end=350, format_axis_label='x')
+            my_plot_object.seaborn_bar_plot(data=np_throughput_data_1replica, x='Request', y='Value', hue='Distribution',
+                                            x_label='No. of requests', y_label='Throughput (req/sec)',
+                                            title='ClusterIP Service (1 Replica)',
+                                            row_index=1, col_index=0, ylim_start=0, ylim_end=1250,
+                                            format_axis_label='x')
+            # my_plot_object.seaborn_bar_plot(data=np_latency_data_3replica, x='Request', y='Value', hue='Distribution',
+            #                                 x_label='No. of requests', y_label='Latency (ms)',
+            #                                 title='ClusterIP Service (3 Replicas)',
+            #                                 row_index=0, col_index=1, ylim_start=0, ylim_end=350, legend=True,
+            #                                 format_axis_label='x')
+            # my_plot_object.seaborn_bar_plot(data=np_throughput_data_3replica, x='Request', y='Value', hue='Distribution',
+            #                                 x_label='No. of requests', y_label='Throughput (req/sec)',
+            #                                 title='ClusterIP Service (3 Replicas)',
+            #                                 row_index=1, col_index=1, ylim_start=0, ylim_end=1400,
+            #                                 format_axis_label='x')
+        else:
+            my_plot_object.seaborn_bar_plot(data=ci_latency_data_1replica, x='Request', y='Value', hue='Distribution',
+                                            x_label='No. of requests', y_label='Latency (ms)',
+                                            title='ClusterIP Service (1 Replica)',
+                                            row_index=0, col_index=0, ylim_start=0, ylim_end=350, format_axis_label='x')
+            my_plot_object.seaborn_bar_plot(data=ci_throughput_data_1replica, x='Request', y='Value', hue='Distribution',
+                                            x_label='No. of requests', y_label='Throughput (req/sec)',
+                                            title='ClusterIP Service (1 Replica)',
+                                            row_index=1, col_index=0, ylim_start=0, ylim_end=750,
+                                            format_axis_label='x')
+            my_plot_object.seaborn_bar_plot(data=np_latency_data_1replica, x='Request', y='Value', hue='Distribution',
+                                            x_label='No. of requests', y_label='Latency (ms)',
+                                            title='NodePort Service (1 Replica)',
+                                            row_index=0, col_index=1, ylim_start=0, ylim_end=350,
+                                            format_axis_label='x')
+            my_plot_object.seaborn_bar_plot(data=np_throughput_data_1replica, x='Request', y='Value', hue='Distribution',
+                                            x_label='No. of requests', y_label='Throughput (req/sec)',
+                                            title='NodePort Service (1 Replica)', legend=True,
+                                            row_index=1, col_index=1, ylim_start=0, ylim_end=750,
+                                            format_axis_label='x')
+
+        plt.savefig(f'figures/dp_{display}_latency_throughput.png', dpi=800)
+    elif deployment == 'cp-latency':
+        k8s_distributions = ['Microk8s', 'K0s', 'K3s']#, 'Openshift']
         pods = ['1', '2', '4', '8', '16', '32', '64']
         metrics = ['Latency', 'Throughput']
+        latency_data_3replica = []
+        throughput_data_3replica = []
 
         # format: microk8s-1, microk8s-2, microk8s-4, ..., k0s-1, ...
         latency_values_3replica = [3.55, 3.84, 3.71, 4.06, 5.73, 7.32, 12.34,
-                                   4.70, 4.96, 4.44, 4.77, 4.98, 5.70, 7.14]
+                                   4.70, 4.96, 4.44, 4.77, 4.98, 5.70, 7.14,
+                                   4.82, 4.69, 4.60, 4.54, 3.56, 4.01, 6.61]
         throughput_values_3replica = [41.60, 57.66, 101.49, 177.34, 242.16, 385.94, 343.12,
-                                      22.41, 29.05, 74.28, 139.07, 280.68, 437.39, 764.35]
+                                      22.41, 29.05, 74.28, 139.07, 280.68, 437.39, 764.35,
+                                      21.00, 33.08, 71.31, 142.39, 401.45, 698.84, 974.27]
 
         pos = 0
 
@@ -247,59 +347,14 @@ def seaborn_bar_plot_process():
                 throughput_data_3replica.append(data_dict_throughput_3replica)
                 pos += 1
 
-    if deployment == 'deployment':
-        my_plot_object.seaborn_bar_plot(data=data_deployment, x='Operation', y='Value', hue='Distribution',
-                                        x_label='Operation', y_label='API Latency (ms)',
-                                        row_index=0, col_index=0, ylim_start=0, ylim_end=2100,
-                                        error=True, legend=True, format_axis_label='none')
-    elif deployment == 'other':
-        my_plot_object.seaborn_bar_plot(data=data_rest, x='Operation', y='Value', hue='Distribution',
-                                        x_label='Type of Object', y_label='API Latency (sec)',
-                                        row_index=0, col_index=0, ylim_start=0, ylim_end=20,
-                                        error=True, legend=True, format_axis_label='none')
-    elif deployment == 'baseline':
-        my_plot_object.seaborn_bar_plot(data=cpu_data, x='Node', y='Value', hue='Distribution',
-                                        x_label='Cluster Node', y_label='Average CPU Usage (%)',
-                                        row_index=0, col_index=0, ylim_start=0, ylim_end=20,
-                                        error=False, legend=False, format_axis_label='none')
-        my_plot_object.seaborn_bar_plot(data=memory_data, x='Node', y='Value', hue='Distribution',
-                                        x_label='Cluster Node', y_label='Average Memory Usage (%)',
-                                        row_index=0, col_index=1, ylim_start=0, ylim_end=40,
-                                        error=False, legend=True, format_axis_label='none')
-        my_plot_object.seaborn_bar_plot(data=disk_data, x='Node', y='Value', hue='Distribution',
-                                        x_label='Cluster Node', y_label='Average Disk Usage (%)',
-                                        row_index=1, col_index=0, ylim_start=0, ylim_end=15,
-                                        error=False, legend=False, format_axis_label='none')
-        my_plot_object.seaborn_bar_plot(data=network_data, x='Node', y='Value', hue='Distribution',
-                                        x_label='Cluster Node', y_label='Average Network Usage (txkB/s)',
-                                        row_index=1, col_index=1, ylim_start=0, ylim_end=5,
-                                        error=False, legend=False, format_axis_label='none')
-    elif deployment == 'dp-latency':
-        my_plot_object.seaborn_bar_plot(data=latency_data_1replica, x='Request', y='Value', hue='Distribution',
-                                        x_label='No. of requests', y_label='NodePort Service Latency (sec)',
-                                        row_index=0, col_index=0, ylim_start=0, ylim_end=40,
-                                        error=False, legend=False, format_axis_label='x')
-        my_plot_object.seaborn_bar_plot(data=throughput_data_1replica, x='Request', y='Value', hue='Distribution',
-                                        x_label='No. of requests', y_label='NodePort Service Throughput (req/sec)',
-                                        row_index=0, col_index=1, ylim_start=0, ylim_end=800,
-                                        error=False, legend=True, format_axis_label='x')
-        my_plot_object.seaborn_bar_plot(data=latency_data_3replica, x='Request', y='Value', hue='Distribution',
-                                        x_label='No. of requests', y_label='ClusterIP Service Latency (sec)',
-                                        row_index=1, col_index=0, ylim_start=0, ylim_end=40,
-                                        error=False, legend=False, format_axis_label='x')
-        my_plot_object.seaborn_bar_plot(data=throughput_data_3replica, x='Request', y='Value', hue='Distribution',
-                                        x_label='No. of requests', y_label='ClusterIP Service Throughput (req/sec)',
-                                        row_index=1, col_index=1, ylim_start=0, ylim_end=800,
-                                        error=False, legend=False, format_axis_label='x')
-    elif deployment == 'cp-latency':
         my_plot_object.seaborn_bar_plot(data=latency_data_3replica, x='Pods', y='Value', hue='Distribution',
                                         x_label='No. of Deployments', y_label='Average Latency (sec)',
-                                        row_index=0, col_index=0, ylim_start=0, ylim_end=15,
-                                        error=False, legend=False, format_axis_label='none')
+                                        row_index=0, col_index=0, ylim_start=0, ylim_end=15)
         my_plot_object.seaborn_bar_plot(data=throughput_data_3replica, x='Pods', y='Value', hue='Distribution',
                                         x_label='No. of Deployments', y_label='Average Throughput (req/sec)',
-                                        row_index=0, col_index=1, ylim_start=0, ylim_end=1000,
-                                        error=False, legend=True, format_axis_label='none')
+                                        row_index=0, col_index=1, ylim_start=0, ylim_end=1100, legend=True)
+
+        plt.savefig(f'figures/cp_latency_throughput.png', dpi=800)
     else:
         print('Invalid deployment type.')
         sys.exit(1)
@@ -394,9 +449,8 @@ def pod_latency_throughput_processor(num_pods):
 
 
 workers = 3  # 1, 2, 3, 4, 5
-deployment = 'other'  # 'pod' or 'deployment' or 'other' or 'baseline' or 'dp-latency' or 'cp-latency'
+deployment = 'dp-latency'  # 'pod' or 'deployment' or 'other' or 'baseline' or 'dp-latency' or 'cp-latency'
 files_path =f'microk8s/{deployment}_{workers}worker_1run'
-#files_path = f'.'
 #files_path = f'system_usage_baseline'
 distribution = 'microk8s'  # 'baseline' or 'microk8s' or 'k0s' or 'k3s' or 'openshift'
 
@@ -407,11 +461,6 @@ distribution = 'microk8s'  # 'baseline' or 'microk8s' or 'k0s' or 'k3s' or 'open
 
 # [Start] Create Seaborn bar plots
 seaborn_bar_plot_process()
-#plt.savefig(f'figures/{deployment}_api_latency_{workers}worker.png', dpi=800)
-plt.savefig(f'figures/{deployment}_apis_latency.png', dpi=800)
-#plt.savefig(f'figures/su_baseline.png', dpi=800)
-#plt.savefig(f'figures/cp_latency_throughput.png', dpi=800)
-#plt.savefig(f'figures/dp_latency_throughput.png', dpi=800)
 # [End] Create Seaborn bar plots
 
 # [Start] Create other plots
