@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coap-server
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: coap-svc
+  template:
+    metadata:
+      labels:
+        app: coap-svc
+    spec:
+      containers:
+      - name: coap-server
+        image: usman476/coap:latest
+        command: [ "python3" ]
+        args: [ "coap-server.py" ]
+        imagePullPolicy: "Always"
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1024Mi
+          requests:
+            cpu: 100m
+            memory: 512Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: coap-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5683    # The port you want to expose on the service
+      targetPort: 5683   # The port your application is listening on within the pod
+      protocol: UDP    # Protocol (TCP or UDP)
+  selector:
+    app: coap-svc   # Label selector to match your deployment or pods

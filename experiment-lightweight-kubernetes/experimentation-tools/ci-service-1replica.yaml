@@ -4,7 +4,7 @@ metadata:
   name: coap-server
   namespace: default
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: coap-svc
@@ -13,6 +13,8 @@ spec:
       labels:
         app: coap-svc
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: worker1
       containers:
       - name: coap-server
         image: usman476/coap:latest
@@ -33,11 +35,10 @@ kind: Service
 metadata:
   name: coap-service
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
     - port: 5683    # The port you want to expose on the service
       targetPort: 5683   # The port your application is listening on within the pod
-      nodePort: 31839
       protocol: UDP    # Protocol (TCP or UDP)
   selector:
     app: coap-svc   # Label selector to match your deployment or pods
