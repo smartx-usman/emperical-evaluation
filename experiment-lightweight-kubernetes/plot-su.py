@@ -15,8 +15,8 @@ sharey = 'none'
 legend_columns = 4
 figure_width = 8.0  # inches
 #figure_height = 4.0  # inches for single row charts
-figure_height = 6.0  # inches for two row charts
-#figure_height = 7.0  # inches for four row charts
+#figure_height = 6.0  # inches for two row charts
+figure_height = 7.0  # inches for four row charts
 
 # Create the plot object
 my_plot_object = Plots(no_of_rows, no_of_cols, sharex, sharey, legend_columns, figure_width, figure_height)
@@ -89,10 +89,6 @@ def network_usage(input_file, axs_row, axs_col, title, x_label, y_label, y_lim_s
 
 def process_node_data():
     for node in ('master', 'worker1', 'worker2', 'worker3'):
-    #for node in ('master', 'worker1', 'worker2', 'worker3'):
-    #for node in ('master', 'worker1', 'simulation1'):
-    #for node in ('master', 'worker1', 'worker2', 'worker3', 'simulation1'):
-    #for node in ('master', 'worker1'):
         if node == 'master':
             color = 'tab:blue'
             cpu_usage(input_file=f'{files_path}/output_su_{node}_2.csv', axs_row=0, axs_col=0, title="",
@@ -271,21 +267,26 @@ def process_distribution_data(node_id):
 
 
 # Define variables
-deployment = 'pod'  # 'pod' or 'deployment'
+deployment = 'deployment'  # 'pod' or 'deployment'
 workers = 3  # 1, 2, 3, 4, 5
 replicas = 1  # 1, 3
-run = 1  # 1, 3
+run = 3  # 1, 3
 
 #distribution = 'k0s'  # 'baseline' or 'microk8s' or 'k0s' or 'k3s' or 'openshift'
 #files_path = f'microk8s/{deployment}_{workers}worker_{run}run'
 #files_path = f'k0s/dp_{replicas}replica_{workers}worker'
-files_path = f'k0s/{deployment}_{workers}worker_{run}run'
+#files_path = f'k0s/{deployment}_{workers}worker_{run}run'
 # process_node_data()
 
+#for node in ('master', 'worker1'):
 node = 'master'  # master or worker1 or workers
-# files_path = [f'microk8s/pod_{workers}worker_3run', f'k0s/pod_{workers}worker_3run', f'k3s/pod_{workers}worker_3run', f'openshift/pod_{workers}worker_3run']
-files_path = [f'microk8s/{deployment}_{workers}worker_{run}run', f'k0s/{deployment}_{workers}worker_{run}run', f'k3s/{deployment}_{workers}worker_{run}run', f'openshift/{deployment}_{workers}worker_{run}run']
+files_path = [f'microk8s/{deployment}_{workers}worker_{run}run',
+              f'k0s/{deployment}_{workers}worker_{run}run',
+              f'k3s/{deployment}_{workers}worker_{run}run',
+              f'openshift/{deployment}_{workers}worker_{run}run']
+
 process_distribution_data(node)
+plt.savefig(f'figures/su_{deployment}_{workers}worker_{run}run_{node}.png', dpi=800)
 
 # Define baseline values
 # baseline_cpu = 0.3  # Example baseline CPU usage percentage
@@ -297,6 +298,5 @@ process_distribution_data(node)
 # axs[1, 0].axhline(y=baseline_disk, color='b', linestyle='--', label='Disk Baseline')
 # axs[1, 1].axhline(y=baseline_network, color='purple', linestyle='--', label='Network Baseline')
 
-plt.savefig(f'figures/su_{deployment}_{workers}worker_{run}run_{node}.png', dpi=800)
 #plt.savefig(f'figures/su_dp_{workers}worker_{replicas}replica_latency_{distribution}.png', dpi=800)
 #plt.savefig(f'figures/su_dp_{workers}worker_{replicas}replica_latency_{distribution}.png', dpi=800)
