@@ -128,8 +128,8 @@ class Plots:
 
         plt.tight_layout()
 
-    def seaborn_bar_plot(self, data, x, y, hue, x_label, y_label, row_index, col_index, ylim_start, ylim_end, legend,
-                         format_axis_label, error):
+    def seaborn_bar_plot(self, data, x, y, hue, x_label, y_label, row_index, col_index, ylim_start, ylim_end,
+                         legend=None, format_axis_label=None, error=None, title=None):
         # Create a DataFrame from the data
         df = pd.DataFrame(data)
 
@@ -160,6 +160,8 @@ class Plots:
             # Set labels and title
             self.axs.set_xlabel(x_label)
             self.axs.set_ylabel(y_label)
+            if title:
+                self.axs.set_title(label=title)
 
             # Format x-axis labels with commas
             if format_axis_label == 'x':
@@ -193,6 +195,8 @@ class Plots:
             # Set labels and title
             self.axs[row_index, col_index].set_xlabel(x_label)
             self.axs[row_index, col_index].set_ylabel(y_label)
+            if title:
+                self.axs[row_index, col_index].set_title(label=title)
 
             # Format x-axis labels with commas
             if format_axis_label == 'x':
