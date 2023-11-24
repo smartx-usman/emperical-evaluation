@@ -27,6 +27,8 @@ If you are unable to access VM using the ssh key provided by MicroStack, you can
 
 - Next run the following commands to modify the image (e.g., jammy-server-cloudimg-amd64.img) and don't forget to change the ssh key. Also, make sure correct indentation after copying and pasting the below code in the cloud.cfg file.
 
+- Please note, if modifying Fedora image then cloud.cfg resides in /root/etc/cloud folder.
+
     ```bash
     sudo guestfish --rw -a jammy-server-cloudimg-amd64.img
     ><fs> run
