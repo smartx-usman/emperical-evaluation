@@ -32,7 +32,11 @@ else
 fi
 
 # Define an array of remote hosts
-REMOTE_HOSTS=("master" "worker1")
+if [ "$distribution" = "microshift" ]; then
+  REMOTE_HOSTS=("master")
+else
+  REMOTE_HOSTS=("master" "worker1")
+fi
 
 # Loop through the remote hosts and execute the monitoring command on each host
 if [ "$workers" = 1 ]; then
@@ -48,6 +52,11 @@ if [ "$workers" = 1 ]; then
       fi
 
       ssh -f -n "${host}" "bash ~/$(basename $LOCAL_SCRIPT) $distribution $mode $execute_count 5"
+
+      # Microshift has just one node and no worker nodes.
+      if [ "$distribution" = "microshift" ]; then
+        break
+      fi
   done
 else
   for host in "${REMOTE_HOSTS[@]}"; do
