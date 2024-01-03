@@ -57,8 +57,10 @@ class Plots:
         self.axs[axs_row, axs_col].set_title(title)
         if set_x_label:
             self.axs[axs_row, axs_col].set_xlabel(x_label)
+
         self.axs[axs_row, axs_col].set_ylabel(y_label)
         self.axs[axs_row, axs_col].set_ylim(y_lim_start, y_lim_end)  # scale between these values
+
         if color == '':
             self.axs[axs_row, axs_col].plot(df[x_col], df[y_col], label=label, linestyle='-', markersize=1)
         else:
@@ -73,6 +75,7 @@ class Plots:
     def time_instance_stack_plot(self, df, axs_row, axs_col, title, x_label, y_label, y_lim_start,
                     y_lim_end, legend_set, set_x_label, color):
         self.axs[axs_row, axs_col].set_title(title)
+
         if set_x_label:
             self.axs[axs_row, axs_col].set_xlabel(x_label)
         self.axs[axs_row, axs_col].set_ylabel(y_label)
@@ -129,7 +132,8 @@ class Plots:
         plt.tight_layout()
 
     def seaborn_bar_plot(self, data, x, y, hue, x_label, y_label, row_index, col_index, ylim_start, ylim_end,
-                         legend=None, format_axis_label=None, error=None, title=None):
+                         legend=None, format_axis_label=None, error=None, title=None, legend_outside=None,
+                         horizontal_line=None, hl_value1=None, hl_value2=None):
         # Create a DataFrame from the data
         df = pd.DataFrame(data)
 
@@ -145,7 +149,8 @@ class Plots:
                 sns.barplot(ax=self.axs, x=x, y=y, hue=hue, data=df, palette='pastel', errwidth=1.5,
                             errcolor='gray', capsize=.02, edgecolor='black', linewidth=1)
             else:
-                sns.barplot(ax=self.axs, x=x, y=y, hue=hue, data=df, palette='pastel', edgecolor='black', linewidth=1)
+                sns.barplot(ax=self.axs, x=x, y=y, hue=hue, data=df, palette='pastel', edgecolor='black', linewidth=1,
+                            errorbar=error)
 
             # Enable grid lines using Matplotlib
             self.axs.grid(True, linestyle='--', alpha=0.5, axis='y')
@@ -166,6 +171,10 @@ class Plots:
             # Format x-axis labels with commas
             if format_axis_label == 'x':
                 self.axs.set_xticklabels(['{:,.0f}'.format(label) for label in df[x].unique()])
+
+            # Add a horizontal line
+            if horizontal_line:
+                self.axs.axhline(hl_value1, color='red', linestyle='--', label='Horizontal Line')
         else:
             if error:
                 sns.barplot(ax=self.axs[row_index, col_index], x=x, y=y, hue=hue, data=df, palette='pastel',
@@ -186,11 +195,16 @@ class Plots:
 
             # Legend placement
             if legend:
-                # self.axs[row_index, col_index].legend(loc='upper left', ncol=2, title="Title")
-                # plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
-                self.axs[row_index, col_index].legend(ncol=self.legend_columns, fontsize=9)
-                # self.axs[row_index, col_index].legend(loc='center left', bbox_to_anchor=(1, 0.5), ncol=self.legend_columns, fontsize=8)
-                # self.axs[row_index, col_index].legend(loc='lower center', bbox_to_anchor=(.5, 1), ncol=self.legend_columns)
+                ## self.axs[row_index, col_index].legend(loc='upper left', ncol=2, title="Title")
+                ## plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
+                # self.axs[row_index, col_index].legend(ncol=self.legend_columns, fontsize=9)
+                ## self.axs[row_index, col_index].legend(loc='center left', bbox_to_anchor=(1, 0.5), ncol=self.legend_columns, fontsize=8)
+                ## self.axs[row_index, col_index].legend(loc='lower center', bbox_to_anchor=(.5, 1), ncol=self.legend_columns)
+                if legend_outside:
+                    self.axs[row_index, col_index].legend(ncol=self.legend_columns, fontsize=9, loc='upper left',
+                                                      bbox_to_anchor=(1, 1))
+                else:
+                    self.axs[row_index, col_index].legend(ncol=self.legend_columns, fontsize=9)
 
             # Set labels and title
             self.axs[row_index, col_index].set_xlabel(x_label)
@@ -201,6 +215,14 @@ class Plots:
             # Format x-axis labels with commas
             if format_axis_label == 'x':
                 self.axs[row_index, col_index].set_xticklabels(['{:,.0f}'.format(label) for label in df[x].unique()])
+
+            # Add a horizontal line
+            if horizontal_line:
+                self.axs[row_index, col_index].axhline(hl_value1, color='red', linestyle='--', label='Baseline Ubuntu')
+
+                if hl_value2:
+                    self.axs[row_index, col_index].axhline(hl_value2, color='blue', linestyle='--',
+                                                           label='Baseline Rhel')
 
         # plt.title('Metrics Comparison for Different Kubernetes Distributions')
 
