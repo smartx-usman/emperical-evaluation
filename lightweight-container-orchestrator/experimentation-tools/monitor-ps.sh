@@ -37,7 +37,7 @@ k0s_worker_processes="kubelet|containerd|k0s|konnectivity|calico-node"
 k3s_master_processes="kubelet|k3s-server|traefik|metrics-server"
 k3s_worker_processes="kubelet|containerd|k3s-agent|traefik|calico-node"
 
-openshift_master_processes=""
+openshift_master_processes="microshift|microshift-etcd|crio|ovs-vswitchd|ovn-kube"
 openshift_worker_processes=""
 
 if [ "$node" = "worker" ]; then
@@ -61,8 +61,8 @@ if [ "$node" = "worker" ]; then
     done
   else
     for ((i = 1; i <= iterations; i++)); do
-      pidstat -r -h -C "kubelet|containerd" | grep -E -v "containerd-shim" >> "pu_memory_${host}.txt" &
-      pidstat -u -h -C "kubelet|containerd" | grep -E -v "containerd-shim" >> "pu_cpu_${host}.txt" &
+      pidstat -r -h -C  $microshift_worker_processes | grep -E -v "containerd-shim" >> "pu_memory_${host}.txt" &
+      pidstat -u -h -C $microshift_worker_processes | grep -E -v "containerd-shim" >> "pu_cpu_${host}.txt" &
       sleep $wait_time
     done
   fi
@@ -87,8 +87,8 @@ elif [ "$node" = "master" ]; then
     done
   else
     for ((i = 1; i <= iterations; i++)); do
-      pidstat -r -h -C "etcd|kube-apiserver" >> "pu_memory_${host}.txt" &
-      pidstat -u -h -C "etcd|kube-apiserver" >> "pu_cpu_${host}.txt" &
+      pidstat -r -h -C  "microshift|microshift-etcd|crio|ovs-vswitchd|ovsdb-server|ovn-northd|ovnkube|ovn-controller" | grep -E -v "containerd-shim" >> "pu_memory_${host}.txt" &
+      pidstat -u -h -C "microshift|microshift-etcd|crio|ovs-vswitchd|ovsdb-server|ovn-northd|ovnkube|ovn-controller" | grep -E -v "containerd-shim" >> "pu_cpu_${host}.txt" &
       sleep $wait_time
     done
   fi
