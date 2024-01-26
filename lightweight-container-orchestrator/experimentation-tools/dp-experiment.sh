@@ -69,18 +69,19 @@ fi
 pip3 install CoAPthon3
 
 # Run experiments
-for experiment in 1 2 3 4 5
+for requests in 10 500 1000 1500
 do
-  echo "[........... Experiment No. $experiment ..........]" >> $result_file
   # for clients in 1 100 200
   for clients in 100
   do
-    for requests in 10 500 1000 1500
+    for experiment in 1 2 3 4 5
     do
+      #echo "[........... Experiment No. $experiment ..........]" >> $result_file
       echo -e "$BBlue No. of clients: $clients, No. of requests: $requests" >&3
       taskset -c 1 python3 coap-stress.py $coap_server $coap_port $clients $requests $result_file
-      echo -e "$BBlue Test completed. Sleeping for 30s..." >&3
-      sleep 30
+      echo -e "$BBlue Test completed. Sleeping for 60s..." >&3
+      sleep 120
     done
   done
+  sleep 120
 done
