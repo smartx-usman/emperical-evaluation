@@ -29,6 +29,9 @@ class Plots:
         if no_of_rows == 1 and no_of_cols == 2:
             # Uncomment for rows=1 and cols=2 or more
             self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey, squeeze=False)
+        if no_of_rows == 1 and no_of_cols == 4:
+            # Uncomment for rows=1 and cols=2 or more
+            self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey, squeeze=False)
         else:
             self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey)
 
@@ -193,18 +196,6 @@ class Plots:
             # Set the y-axis limits (ylim)
             self.axs[row_index, col_index].set_ylim(ylim_start, ylim_end)
 
-            # Legend placement
-            if legend:
-                ## self.axs[row_index, col_index].legend(loc='upper left', ncol=2, title="Title")
-                ## plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
-                # self.axs[row_index, col_index].legend(ncol=self.legend_columns, fontsize=9)
-                ## self.axs[row_index, col_index].legend(loc='center left', bbox_to_anchor=(1, 0.5), ncol=self.legend_columns, fontsize=8)
-                ## self.axs[row_index, col_index].legend(loc='lower center', bbox_to_anchor=(.5, 1), ncol=self.legend_columns)
-                if legend_outside:
-                    self.axs[row_index, col_index].legend(ncol=self.legend_columns, fontsize=9, loc='upper left',
-                                                      bbox_to_anchor=(1, 1))
-                else:
-                    self.axs[row_index, col_index].legend(ncol=self.legend_columns, fontsize=9)
 
             # Set labels and title
             self.axs[row_index, col_index].set_xlabel(x_label)
@@ -218,11 +209,25 @@ class Plots:
 
             # Add a horizontal line
             if horizontal_line:
-                self.axs[row_index, col_index].axhline(hl_value1, color='red', linestyle='--', label='Baseline Ubuntu')
+                self.axs[row_index, col_index].axhline(hl_value1, color='red', linestyle='--', label='Ubuntu')
 
                 if hl_value2:
                     self.axs[row_index, col_index].axhline(hl_value2, color='blue', linestyle='--',
-                                                           label='Baseline Rhel')
+                                                           label='RHEL')
+
+            # Legend placement
+            if legend:
+                ## self.axs[row_index, col_index].legend(loc='upper left', ncol=2, title="Title")
+                ## plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
+                # self.axs[row_index, col_index].legend(ncol=self.legend_columns, fontsize=9)
+                ## self.axs[row_index, col_index].legend(loc='center left', bbox_to_anchor=(1, 0.5), ncol=self.legend_columns, fontsize=8)
+                ## self.axs[row_index, col_index].legend(loc='lower center', bbox_to_anchor=(.5, 1), ncol=self.legend_columns)
+                if legend_outside:
+                    self.axs[row_index, col_index].legend(ncol=self.legend_columns, fontsize=9,
+                                                          loc='upper left',
+                                                          bbox_to_anchor=(1, 1))
+                else:
+                    self.axs[row_index, col_index].legend(ncol=self.legend_columns, fontsize=9)
 
         # plt.title('Metrics Comparison for Different Kubernetes Distributions')
 
