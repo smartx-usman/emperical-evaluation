@@ -7,31 +7,48 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 # Set data processing variables
+graph = 'simple'  # 'simple' or 'multi'
 deployment = 'pod'  # 'pod' or 'deployment'
 workers = 1  # 1, 2, 3, 4, 5
-replicas = 1  # 1, 3
 run = 1  # 1, 3
-node = 'master'  # master or worker1 or workers
+node = 'worker1'  # master or worker1 or workers
 distributions = ('K0s', 'K3s', 'Microk8s', 'Microshift')
 data_subpath = f'{deployment}_{workers}worker_{run}run'
 files_path = [f'k0s/{data_subpath}', f'k3s/{data_subpath}', f'microk8s/{data_subpath}', f'microshift/{data_subpath}']
 
 # Subplots layout
 if node == 'master':
-    no_of_rows = 4
-    figure_height = 7.0  # inches for four row charts
+    if graph == 'simple':
+        no_of_rows = 2
+        no_of_cols = 2
+        figure_height = 4.0
+        figure_width = 6.0
+    else:
+        no_of_rows = 4
+        no_of_cols = 4
+        figure_height = 7.0  # inches for four row charts
+        figure_width = 8.0
 else:
-    no_of_rows = 3
-    figure_height = 6.5  # inches for three row charts
-no_of_cols = 4
+    if graph == 'simple':
+        no_of_rows = 2
+        no_of_cols = 2
+        figure_height = 4.0
+        figure_width = 6.0
+    else:
+        no_of_rows = 3
+        no_of_cols = 4
+        figure_height = 6.5  # inches for three row charts
+        figure_width = 8.0
+
+
 
 # sharex = 'col'
 sharex = 'none'
 sharey = 'none'
 
-legend_columns = 4
+legend_columns = 1
 
-figure_width = 8.0  # inches
+#figure_width = 8.0  # inches
 #figure_height = 4.0  # inches for single row charts
 #figure_height = 5.5  # inches for two row charts
 
@@ -75,7 +92,7 @@ def cpu_usage(input_file, axs_row, axs_col, title, x_label, y_label, y_lim_start
 
 
 def memory_usage(input_file, axs_row, axs_col, title, x_label, y_label, y_lim_start, y_lim_end, legend_set, set_x_label,
-                 label, color):
+                 label, color, legend_outside):
     """Plot CPU Usage"""
     df = pd.read_csv(input_file)
     df['time'] = pd.to_datetime(df['timestamp'])
@@ -90,7 +107,7 @@ def memory_usage(input_file, axs_row, axs_col, title, x_label, y_label, y_lim_st
                                       axs_row=axs_row, axs_col=axs_col,
                                       title=title, x_label=x_label, y_label=y_label,
                                       y_lim_start=y_lim_start, y_lim_end=y_lim_end, legend_set=legend_set,
-                                      set_x_label=set_x_label, color=color)
+                                      set_x_label=set_x_label, color=color, legend_outside=legend_outside)
 
 
 def disk_usage(input_file, axs_row, axs_col, title, x_label, y_label, y_lim_start, y_lim_end, legend_set, set_x_label,
@@ -247,7 +264,6 @@ def process_node_data():
 
 
 def process_distribution_data(node_id):
-    #for distribution in ('K0s', 'K3s', 'Microk8s'):
     for distribution in distributions:
         if distribution == 'K0s':
             color = 'tab:blue'
@@ -272,46 +288,91 @@ def process_distribution_data(node_id):
         else:
             continue
 
-        if node_id == 'workers':
-            color = ''
-            for node in ('worker1', 'worker2', 'worker3'):
-                cpu_usage(input_file=f'{path}/output_su_{node}_2.csv', axs_row=axs_row, axs_col=0, title="",
-                          x_label="Time (sec)", y_label="CPU (%)", y_lim_start=0, y_lim_end=100, legend_set=False,
-                          set_x_label=True, label=f'{distribution}-{node}', color=color)
-
-                memory_usage(input_file=f'{path}/output_su_{node}_4.csv', axs_row=axs_row, axs_col=1, title="",
-                             x_label="Time (sec)", y_label="Memory (MBytes)", y_lim_start=0, y_lim_end=2048,
-                             legend_set=False,
-                             set_x_label=True, label=f'{distribution}-{node}', color=color)
-
-                disk_usage(input_file=f'{path}/output_su_{node}_6.csv', axs_row=axs_row, axs_col=2, title="",
-                           x_label="Time (sec)", y_label="Disk (%)", y_lim_start=0, y_lim_end=100, legend_set=False,
-                           set_x_label=True, label=f'{distribution}-{node}', color=color)
-
-                network_usage(input_file=f'{path}/output_su_{node}_0.csv', axs_row=axs_row, axs_col=3, title="",
-                              x_label="Time (sec)", y_label="Net (Rx KBytes/s)", y_lim_start=0, y_lim_end=1500,
-                              legend_set=True,
+        # Just create single row graph
+        if graph == 'simple':
+            if node_id == 'workers':
+                color = ''
+                for node in ('worker1', 'worker2', 'worker3'):
+                    axs_row = 0
+                    cpu_usage(input_file=f'{path}/output_su_{node}_2.csv', axs_row=axs_row, axs_col=0, title="",
+                              x_label="Time (sec)", y_label="CPU (%)", y_lim_start=0, y_lim_end=100, legend_set=False,
                               set_x_label=True, label=f'{distribution}-{node}', color=color)
-        else:
-            cpu_usage(input_file=f'{path}/output_su_{node_id}_2.csv', axs_row=axs_row, axs_col=0, title="",
-                      x_label="Time (sec)", y_label="CPU (%)", y_lim_start=0, y_lim_end=100, legend_set=False,
-                      set_x_label=True, label=distribution, color=color)
 
-            memory_usage(input_file=f'{path}/output_su_{node_id}_4.csv', axs_row=axs_row, axs_col=1, title="",
-                         x_label="Time (sec)", y_label="Memory (MBytes)", y_lim_start=0, y_lim_end=3500,
-                         legend_set=False,
-                         set_x_label=True, label=distribution, color=color)
+                    memory_usage(input_file=f'{path}/output_su_{node}_4.csv', axs_row=axs_row, axs_col=1, title="",
+                                 x_label="Time (sec)", y_label="Memory (MBytes)", y_lim_start=0, y_lim_end=2048,
+                                 legend_set=False,
+                                 set_x_label=True, label=f'{distribution}-{node}', color=color)
+                    axs_row = 1
+                    disk_usage(input_file=f'{path}/output_su_{node}_6.csv', axs_row=axs_row, axs_col=0, title="",
+                               x_label="Time (sec)", y_label="Disk (%)", y_lim_start=0, y_lim_end=100, legend_set=False,
+                               set_x_label=True, label=f'{distribution}-{node}', color=color)
 
-            disk_usage(input_file=f'{path}/output_su_{node_id}_6.csv', axs_row=axs_row, axs_col=2, title="",
-                       x_label="Time (sec)", y_label="Disk (%)", y_lim_start=0, y_lim_end=100, legend_set=False,
-                       set_x_label=True, label=distribution, color=color)
-
-            print(f'{path}/output_su_{node_id}')
-
-            network_usage(input_file=f'{path}/output_su_{node_id}_0.csv', axs_row=axs_row, axs_col=3, title="",
-                          x_label="Time (sec)", y_label="Net (Rx KBytes/s)", y_lim_start=0, y_lim_end=1500,
-                          legend_set=True,
+                    network_usage(input_file=f'{path}/output_su_{node}_0.csv', axs_row=axs_row, axs_col=1, title="",
+                                  x_label="Time (sec)", y_label="Net (Rx KBytes/s)", y_lim_start=0, y_lim_end=1500,
+                                  legend_set=True,
+                                  set_x_label=True, label=f'{distribution}-{node}', color=color)
+            else:
+                axs_row = 0
+                cpu_usage(input_file=f'{path}/output_su_{node_id}_2.csv', axs_row=axs_row, axs_col=0, title="",
+                          x_label="Time (sec)", y_label="CPU (%)", y_lim_start=0, y_lim_end=100, legend_set=False,
                           set_x_label=True, label=distribution, color=color)
+
+                memory_usage(input_file=f'{path}/output_su_{node_id}_4.csv', axs_row=axs_row, axs_col=1, title="",
+                             x_label="Time (sec)", y_label="Memory (MBytes)", y_lim_start=0, y_lim_end=3500,
+                             legend_set=True, legend_outside=True,
+                             set_x_label=True, label=distribution, color=color)
+                axs_row = 1
+                disk_usage(input_file=f'{path}/output_su_{node_id}_6.csv', axs_row=axs_row, axs_col=0, title="",
+                           x_label="Time (sec)", y_label="Disk (%)", y_lim_start=0, y_lim_end=100, legend_set=False,
+                           set_x_label=True, label=distribution, color=color)
+
+                print(f'{path}/output_su_{node_id}')
+
+                network_usage(input_file=f'{path}/output_su_{node_id}_0.csv', axs_row=axs_row, axs_col=1, title="",
+                              x_label="Time (sec)", y_label="Net (Rx KBytes/s)", y_lim_start=0, y_lim_end=300,
+                              legend_set=False,
+                              set_x_label=True, label=distribution, color=color)
+        else:
+            if node_id == 'workers':
+                color = ''
+                for node in ('worker1', 'worker2', 'worker3'):
+                    cpu_usage(input_file=f'{path}/output_su_{node}_2.csv', axs_row=axs_row, axs_col=0, title="",
+                              x_label="Time (sec)", y_label="CPU (%)", y_lim_start=0, y_lim_end=100, legend_set=False,
+                              set_x_label=True, label=f'{distribution}-{node}', color=color)
+
+                    memory_usage(input_file=f'{path}/output_su_{node}_4.csv', axs_row=axs_row, axs_col=1, title="",
+                                 x_label="Time (sec)", y_label="Memory (MBytes)", y_lim_start=0, y_lim_end=2048,
+                                 legend_set=False,
+                                 set_x_label=True, label=f'{distribution}-{node}', color=color)
+
+                    disk_usage(input_file=f'{path}/output_su_{node}_6.csv', axs_row=axs_row, axs_col=2, title="",
+                               x_label="Time (sec)", y_label="Disk (%)", y_lim_start=0, y_lim_end=100, legend_set=False,
+                               set_x_label=True, label=f'{distribution}-{node}', color=color)
+
+                    network_usage(input_file=f'{path}/output_su_{node}_0.csv', axs_row=axs_row, axs_col=3, title="",
+                                  x_label="Time (sec)", y_label="Net (Rx KBytes/s)", y_lim_start=0, y_lim_end=1500,
+                                  legend_set=True,
+                                  set_x_label=True, label=f'{distribution}-{node}', color=color)
+            else:
+                cpu_usage(input_file=f'{path}/output_su_{node_id}_2.csv', axs_row=axs_row, axs_col=0, title="",
+                          x_label="Time (sec)", y_label="CPU (%)", y_lim_start=0, y_lim_end=100, legend_set=False,
+                          set_x_label=True, label=distribution, color=color)
+
+                memory_usage(input_file=f'{path}/output_su_{node_id}_4.csv', axs_row=axs_row, axs_col=1, title="",
+                             x_label="Time (sec)", y_label="Memory (MBytes)", y_lim_start=0, y_lim_end=3500,
+                             legend_set=False,
+                             set_x_label=True, label=distribution, color=color)
+
+                disk_usage(input_file=f'{path}/output_su_{node_id}_6.csv', axs_row=axs_row, axs_col=2, title="",
+                           x_label="Time (sec)", y_label="Disk (%)", y_lim_start=0, y_lim_end=100, legend_set=False,
+                           set_x_label=True, label=distribution, color=color)
+
+                print(f'{path}/output_su_{node_id}')
+
+                network_usage(input_file=f'{path}/output_su_{node_id}_0.csv', axs_row=axs_row, axs_col=3, title="",
+                              x_label="Time (sec)", y_label="Net (Rx KBytes/s)", y_lim_start=0, y_lim_end=300,
+                              legend_set=True,
+                              set_x_label=True, label=distribution, color=color)
 
 
 #  process_node_data()
