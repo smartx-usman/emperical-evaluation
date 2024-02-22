@@ -29,7 +29,7 @@ class Plots:
         if no_of_rows == 1 and no_of_cols == 2:
             # Uncomment for rows=1 and cols=2 or more
             self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey, squeeze=False)
-        if no_of_rows == 1 and no_of_cols == 4:
+        elif no_of_rows == 1 and no_of_cols == 4:
             # Uncomment for rows=1 and cols=2 or more
             self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey, squeeze=False)
         else:
@@ -56,7 +56,7 @@ class Plots:
         self.fig.tight_layout()
 
     def time_instance_plot(self, df, x_col, y_col, label, axs_row, axs_col, title, x_label, y_label, y_lim_start,
-                    y_lim_end, legend_set, set_x_label, color):
+                    y_lim_end, legend_set, set_x_label, color, legend_outside=None):
         self.axs[axs_row, axs_col].set_title(title)
         if set_x_label:
             self.axs[axs_row, axs_col].set_xlabel(x_label)
@@ -71,7 +71,10 @@ class Plots:
         self.axs[axs_row, axs_col].yaxis.grid('gray')
 
         if legend_set:
-            self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper right')
+            if legend_outside:
+                self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper left', bbox_to_anchor=(1, 1))
+            else:
+                self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper right')
 
         self.fig.tight_layout()
 
@@ -136,7 +139,8 @@ class Plots:
 
     def seaborn_bar_plot(self, data, x, y, hue, x_label, y_label, row_index, col_index, ylim_start, ylim_end,
                          legend=None, format_axis_label=None, error=None, title=None, legend_outside=None,
-                         horizontal_line=None, hl_value1=None, hl_value2=None):
+                         horizontal_line=None, hl_value1=None, hl_value2=None,
+                         hatch=None, color=None):
         # Create a DataFrame from the data
         df = pd.DataFrame(data)
 
@@ -146,6 +150,20 @@ class Plots:
 
         # Set Seaborn style
         sns.set(style='whitegrid')
+
+        # Set the hatch pattern
+        if hatch:
+            hatches = ['', '+']
+        else:
+            hatches = ['']
+
+        # Set color
+        if color:
+            pastel_palette = sns.color_palette("Paired")
+            color_palette = [pastel_palette[0], pastel_palette[1], pastel_palette[6], pastel_palette[7],
+                             pastel_palette[2], pastel_palette[3], pastel_palette[4], pastel_palette[5]]
+        else:
+            color_palette = sns.color_palette("pastel")
 
         if self.no_of_cols == 1 and self.no_of_rows == 1:
             if error:
@@ -180,13 +198,13 @@ class Plots:
                 self.axs.axhline(hl_value1, color='red', linestyle='--', label='Horizontal Line')
         else:
             if error:
-                sns.barplot(ax=self.axs[row_index, col_index], x=x, y=y, hue=hue, data=df, palette='pastel',
+                sns.barplot(ax=self.axs[row_index, col_index], x=x, y=y, hue=hue, data=df, palette=color_palette,
                             errwidth=1.5,
-                            errcolor='gray', capsize=.02, edgecolor='black', linewidth=1)
+                            errcolor='gray', capsize=.02, edgecolor='black', linewidth=1, hatch=hatches)
                 self.axs[row_index, col_index].get_legend().remove()  # Remove legend in each subplot
             else:
-                sns.barplot(ax=self.axs[row_index, col_index], x=x, y=y, hue=hue, data=df, palette='pastel',
-                            edgecolor='black', linewidth=1)
+                sns.barplot(ax=self.axs[row_index, col_index], x=x, y=y, hue=hue, data=df, palette=color_palette,
+                            edgecolor='black', linewidth=1, hatch=hatches)
                 if not legend:
                     self.axs[row_index, col_index].get_legend().remove()  # Remove legend in each subplot
 
@@ -224,8 +242,7 @@ class Plots:
                 ## self.axs[row_index, col_index].legend(loc='lower center', bbox_to_anchor=(.5, 1), ncol=self.legend_columns)
                 if legend_outside:
                     self.axs[row_index, col_index].legend(ncol=self.legend_columns, fontsize=9,
-                                                          loc='upper left',
-                                                          bbox_to_anchor=(1, 1))
+                                                          loc='upper left', bbox_to_anchor=(1, 1))
                 else:
                     self.axs[row_index, col_index].legend(ncol=self.legend_columns, fontsize=9)
 
@@ -234,28 +251,47 @@ class Plots:
         # Adjust layout
         plt.tight_layout()
 
-        # Display the plot
-        # plt.show()
-
-    def dual_axis_plot(self, x_data, y1_data, y2_data, x_label, y_lim_start, y_lim_end):
-        # fig, ax1 = plt.subplots()
+    def dual_axis_plot(self, x_data, y1_data, y2_data, x_label, y_lim_start, y_lim_end, row_index, col_index, y1_label, y2_label,
+                       color, color1='tab:orange', color2='tab:blue', legend=False, title=None, distributions=None,
+                       format_x_axis=None):
+        self.axs[row_index, col_index].set_title(label=title)
 
         # Latency data on the first y-axis (left)
-        self.axs.set_xlabel(x_label)
-        self.axs.set_ylabel('Pods starting latency (sec)', color='tab:orange')
-        self.axs.set_ylim(y_lim_start, y_lim_end)  # scale between these values
-        self.axs.plot(x_data, y1_data, color='tab:orange', linestyle='-', marker='o', label="Avg. latency")
-        plt.legend(loc='lower right')
+        self.axs[row_index, col_index].set_xlabel(x_label)
+        self.axs[row_index, col_index].set_ylabel(y1_label)
+        self.axs[row_index, col_index].set_ylim(y_lim_start, y_lim_end)  # scale between these values
+        self.axs[row_index, col_index].plot(x_data, y1_data, color=color, linestyle='-', marker='o')
+        #if legend:
+        #    plt.legend(loc='lower right', ncol=self.legend_columns, bbox_to_anchor=(1, 1), fontsize=9)
 
         # Throughput data on the second y-axis (right)
-        ax2 = self.axs.twinx()
-        ax2.set_ylabel('Pods creation throughput (min)', color='tab:blue')
-        ax2.plot(x_data, y2_data, color='tab:blue', linestyle='-', marker='o', label="Avg. throughput")
-        plt.legend(loc='upper right')
+        ax2 = self.axs[row_index, col_index].twinx()
+        ax2.set_ylabel(y2_label)
+        ax2.set_ylim(400, 900)  # scale between these values
+
+        ax2.plot(x_data, y2_data, color=color, linestyle='--', marker='x')
+
+        # Format x-axis labels with commas
+        if format_x_axis:
+            x_data_float = [float(label) for label in x_data]
+            self.axs[row_index, col_index].set_xticklabels(['{:,.0f}'.format(label) for label in x_data_float])
+
+        # Add custom legends
+        if legend:
+            # Define custom labels and colors for the legend
+            custom_labels = distributions
+            custom_colors = ['blue', 'orange', 'green', 'red']
+
+            # Create custom legend
+            for label, color in zip(custom_labels, custom_colors):
+                plt.plot([], label=label, color=color)
+
+            # Remove existing legends (if any)
+            plt.legend().remove()
+            plt.legend(loc='upper left', ncol=self.legend_columns, bbox_to_anchor=(1.30, 1), fontsize=9)
 
         plt.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
         plt.tight_layout()
-        # plt.savefig(f'{deployment_type}.png', dpi=800)
 
     def dual_bar_plot(self, x_data, y1_data, y2_data, y3_data, y4_data, label1, label2, y_label_1, y_label_2, x_label):
         # Create a figure with two subplots
@@ -264,7 +300,7 @@ class Plots:
         # Subplot 1: Latency
         bar_width = 0.35
         index = np.arange(len(x_data))
-        bar_colors = ['lightgrey', 'darkgrey']
+        bar_colors = ['crimson', 'slategrey']
         self.axs[0].bar(index, y1_data, bar_width, label=label1, color=bar_colors[0])
         self.axs[0].bar(index + bar_width, y2_data, bar_width, label=label2, color=bar_colors[1])
         self.axs[0].set_xlabel(x_label)
@@ -284,4 +320,4 @@ class Plots:
         # self.axs[1].legend()
         self.axs[1].set_ylim(0, 250)
 
-        plt.legend(loc='upper left')
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
