@@ -70,6 +70,9 @@ class Plots:
             self.axs[axs_row, axs_col].plot(df[x_col], df[y_col], label=label, linestyle='-', markersize=1, color=color)
         self.axs[axs_row, axs_col].yaxis.grid('gray')
 
+        if title:
+            self.axs[axs_row, axs_col].set_title(label=title)
+
         if legend_set:
             if legend_outside:
                 self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper left', bbox_to_anchor=(1, 1))
@@ -79,7 +82,7 @@ class Plots:
         self.fig.tight_layout()
 
     def time_instance_stack_plot(self, df, axs_row, axs_col, title, x_label, y_label, y_lim_start,
-                    y_lim_end, legend_set, set_x_label, color):
+                    y_lim_end, legend_set, legend_outside, set_x_label, color):
         self.axs[axs_row, axs_col].set_title(title)
 
         if set_x_label:
@@ -98,7 +101,10 @@ class Plots:
         self.axs[axs_row, axs_col].set_ylim(y_lim_start, y_lim_end)
 
         if legend_set:
-            self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper left', bbox_to_anchor=(1, 1))
+            if legend_outside:
+                self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper left', bbox_to_anchor=(1, 1))
+            else:
+                self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper left')
         else:
             self.axs[axs_row, axs_col].get_legend().remove()  # Remove legend in each subplot
 
@@ -170,7 +176,8 @@ class Plots:
                 sns.barplot(ax=self.axs, x=x, y=y, hue=hue, data=df, palette='pastel', errwidth=1.5,
                             errcolor='gray', capsize=.02, edgecolor='black', linewidth=1)
             else:
-                sns.barplot(ax=self.axs, x=x, y=y, hue=hue, data=df, palette='pastel', edgecolor='black', linewidth=1,
+                df_median = df[df['Metric'] == 'Median']
+                sns.barplot(ax=self.axs, x=x, y=y, hue=hue, data=df_median, palette='pastel', edgecolor='black', linewidth=1,
                             errorbar=error)
 
             # Enable grid lines using Matplotlib
@@ -251,7 +258,8 @@ class Plots:
         # Adjust layout
         plt.tight_layout()
 
-    def dual_axis_plot(self, x_data, y1_data, y2_data, x_label, y_lim_start, y_lim_end, row_index, col_index, y1_label, y2_label,
+    def dual_axis_plot(self, x_data, y1_data, y2_data, x_label, y1_lim_start, y1_lim_end, y2_lim_start, y2_lim_end,
+                       row_index, col_index, y1_label, y2_label,
                        color, color1='tab:orange', color2='tab:blue', legend=False, title=None, distributions=None,
                        format_x_axis=None):
         self.axs[row_index, col_index].set_title(label=title)
@@ -259,7 +267,7 @@ class Plots:
         # Latency data on the first y-axis (left)
         self.axs[row_index, col_index].set_xlabel(x_label)
         self.axs[row_index, col_index].set_ylabel(y1_label)
-        self.axs[row_index, col_index].set_ylim(y_lim_start, y_lim_end)  # scale between these values
+        self.axs[row_index, col_index].set_ylim(y1_lim_start, y1_lim_end)  # scale between these values
         self.axs[row_index, col_index].plot(x_data, y1_data, color=color, linestyle='-', marker='o')
         #if legend:
         #    plt.legend(loc='lower right', ncol=self.legend_columns, bbox_to_anchor=(1, 1), fontsize=9)
@@ -267,7 +275,8 @@ class Plots:
         # Throughput data on the second y-axis (right)
         ax2 = self.axs[row_index, col_index].twinx()
         ax2.set_ylabel(y2_label)
-        ax2.set_ylim(400, 900)  # scale between these values
+        ax2.set_ylim(y2_lim_start, y2_lim_end)  # scale between these values
+        #ax2.set_ylim(400, 900)  # scale between these values
 
         ax2.plot(x_data, y2_data, color=color, linestyle='--', marker='x')
 
