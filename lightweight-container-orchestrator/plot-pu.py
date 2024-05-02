@@ -67,7 +67,8 @@ def cpu_usage(input_file, axs_row, axs_col, title, x_label, y_label, y_lim_start
 
     my_plot_object.time_instance_stack_plot(df=stacked_df, axs_row=axs_row, axs_col=axs_col,
                                             title=title, x_label=x_label, y_label=y_label,
-                                            y_lim_start=y_lim_start, y_lim_end=y_lim_end, legend_set=legend_set,
+                                            y_lim_start=y_lim_start, y_lim_end=y_lim_end,
+                                            legend_set=legend_set, legend_outside=True,
                                             set_x_label=set_x_label, color=color)
 
 
@@ -103,10 +104,11 @@ def memory_usage(input_file, axs_row, axs_col, title, x_label, y_label, y_lim_st
     stacked_df = concatenated_df.pivot_table(index='time_seconds', columns='command', values='value',
                                              aggfunc='sum').fillna(0).cumsum(axis=1)
 
-    #print(stacked_df.head(4))
+    # print(stacked_df.head(4))
     my_plot_object.time_instance_stack_plot(df=stacked_df, axs_row=axs_row, axs_col=axs_col,
                                             title=title, x_label=x_label, y_label=y_label,
-                                            y_lim_start=y_lim_start, y_lim_end=y_lim_end, legend_set=legend_set,
+                                            y_lim_start=y_lim_start, y_lim_end=y_lim_end,
+                                            legend_set=legend_set, legend_outside=True,
                                             set_x_label=set_x_label, color=color)
 
 
@@ -138,7 +140,6 @@ def process_data():
                       axs_row=0, axs_col=0, legend=False)
             call_plot(path=path, distribution=distribution, color=color, services=k0s_services, function='memory',
                       axs_row=0, axs_col=1, legend=True)
-
         elif distribution == 'K3s':
             path = files_path[1]
             call_plot(path=path, distribution=distribution, color=color, services=k3s_services, function='cpu',
