@@ -4,7 +4,7 @@ import sys
 
 data = 'all'  # 'all' or 'services'
 deployment = 'deployment'  # 'pod' or 'deployment'
-distribution = 'k3s'
+distribution = 'k0s'
 workers = 1  # 1, 2, 3, 4, 5
 run = 1  # 1, 3
 
@@ -12,13 +12,14 @@ run = 1  # 1, 3
 #files_path = f'{distribution}/system_usage_idle'
 files_path = f'{distribution}/{deployment}_{workers}worker_{run}run'
 files_path = f'{distribution}/pu_{workers}worker_{run}run'
-files_path = f'k3s/dp_nodeport_1replica_{workers}worker'
+files_path = f'{distribution}/dp_clusterip_1replica_{workers}worker'
 
 #input_file_list = ['pu_cpu_master1', 'pu_cpu_worker1', 'pu_memory_master1', 'pu_memory_worker1']
 input_file_list = ['pu_cpu_master1', 'pu_memory_master1']
 #input_file_list = ['su_master', 'su_worker1', 'su_worker2', 'su_worker3']
 #input_file_list = ['su_master', 'su_worker1']
-input_file_list = ['su_worker1', 'su_simulator']
+#input_file_list = ['su_worker1', 'su_simulator']
+input_file_list = ['su_master']
 
 
 def process_file_all(input_file_path, output_file_path):
