@@ -12,6 +12,7 @@ HOME_PATH="./data"
 result_file="result.txt"
 coap_server="single"
 coap_port="5683" # or 31839
+no_of_clients=100
 
 handle_debug() {
   { set +x; } 2>/dev/null; echo -n "[$(date -Is)]  "; set -x
@@ -30,15 +31,16 @@ trap '{ set +x; } 2>/dev/null; echo -n "[$(date -Is)]  "; set -x' DEBUG
 
 # Function to display usage information
 usage() {
-  echo "Usage: $0 [-f <result_file>] [-s <coap_server>] [-p <coap_port>]" >&3
+  echo "Usage: $0 [-f <result_file>] [-s <coap_server>] [-p <coap_port>] [-c <no_of_clients>]" >&3
   echo "  -f <result_file>: Specify the result file (default: result.txt)" >&3
   echo "  -s <coap_server>: Specify the CoAP server (default: single)" >&3
   echo "  -p <coap_port>: Specify the CoAP port (default: 5683)" >&3
+  echo "  -c <no_of_clients>: Specify the client threads (default: 100)" >&3
   exit 1
 }
 
 # Parse command line arguments
-while getopts ":f:s:p:" opt; do
+while getopts ":f:s:p:c:" opt; do
   case $opt in
     f)
       result_file="$OPTARG"
@@ -48,6 +50,9 @@ while getopts ":f:s:p:" opt; do
       ;;
     p)
       coap_port="$OPTARG"
+      ;;
+    c)
+      no_of_clients="$OPTARG"
       ;;
     \?)
       echo "Invalid option: -$OPTARG"
@@ -72,15 +77,13 @@ pip3 install CoAPthon3
 for requests in 10 500 1000 1500
 do
   # for clients in 1 100 200
-  for clients in 100
-  do
-    for experiment in 1 2 3 4 5
-    do
+  for clients in "$no_of_clients"; do
+    for experiment in 1 2 3 4 5; do
       #echo "[........... Experiment No. $experiment ..........]" >> $result_file
       echo -e "$BBlue No. of clients: $clients, No. of requests: $requests" >&3
       taskset -c 1 python3 coap-stress.py $coap_server $coap_port $clients $requests $result_file
-      echo -e "$BBlue Test completed. Sleeping for 60s..." >&3
-      sleep 120
+      echo -e "$BBlue Test completed. Sleeping for 180s..." >&3
+      sleep 180
     done
   done
   sleep 120
