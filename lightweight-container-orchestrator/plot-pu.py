@@ -8,13 +8,15 @@ pd.set_option('display.max_rows', None)
 pd.set_option('mode.chained_assignment', None)
 
 # Subplots layout
-no_of_rows = 4
+no_of_rows = 3
 no_of_cols = 2
 sharex = 'col'
 sharey = 'none'
 legend_columns = 1
-figure_width = 8.0  # inches
-figure_height = 7.0  # inches
+figure_width = 7.0  # for 4 rows
+figure_width = 5.0  # for 3 rows
+figure_height = 8.0 # for 4 rows
+figure_height = 6.0  # for 3 rows
 
 # Create the plot object
 my_plot_object = Plots(no_of_rows, no_of_cols, sharex, sharey, legend_columns, figure_width, figure_height)
@@ -23,8 +25,8 @@ my_plot_object = Plots(no_of_rows, no_of_cols, sharex, sharey, legend_columns, f
 workers = 1  # 1, 2, 3, 4, 5
 run = 1
 deployment = 'pod'  # 'pod' or 'deployment'
-node = 'master1'  # 'master1' or 'worker1'
-color = 'tab20'
+node = 'worker1'  # 'master1' or 'worker1'
+color = 'Accent'
 
 files_path = [f'k0s/pu_{workers}worker_{run}run',
               f'k3s/pu_{workers}worker_{run}run',
@@ -65,11 +67,13 @@ def cpu_usage(input_file, axs_row, axs_col, title, x_label, y_label, y_lim_start
     stacked_df = concatenated_df.pivot_table(index='time_seconds', columns='command', values='value',
                                              aggfunc='sum').fillna(0).cumsum(axis=1)
 
+    print(stacked_df.head(5))
+
     my_plot_object.time_instance_stack_plot(df=stacked_df, axs_row=axs_row, axs_col=axs_col,
                                             title=title, x_label=x_label, y_label=y_label,
                                             y_lim_start=y_lim_start, y_lim_end=y_lim_end,
-                                            legend_set=legend_set, legend_outside=True,
-                                            set_x_label=set_x_label, color=color)
+                                            legend_set=legend_set, legend_outside=False,
+                                            set_x_label=set_x_label, color=color, services=services)
 
 
 def memory_usage(input_file, axs_row, axs_col, title, x_label, y_label, y_lim_start, y_lim_end, legend_set, set_x_label,
@@ -104,66 +108,87 @@ def memory_usage(input_file, axs_row, axs_col, title, x_label, y_label, y_lim_st
     stacked_df = concatenated_df.pivot_table(index='time_seconds', columns='command', values='value',
                                              aggfunc='sum').fillna(0).cumsum(axis=1)
 
-    # print(stacked_df.head(4))
     my_plot_object.time_instance_stack_plot(df=stacked_df, axs_row=axs_row, axs_col=axs_col,
                                             title=title, x_label=x_label, y_label=y_label,
                                             y_lim_start=y_lim_start, y_lim_end=y_lim_end,
-                                            legend_set=legend_set, legend_outside=True,
-                                            set_x_label=set_x_label, color=color)
+                                            legend_set=legend_set, legend_outside=False,
+                                            set_x_label=set_x_label, color=color, services=services)
 
 
 def call_plot(path, distribution, color, services, function, axs_row, axs_col, legend):
     if function == 'cpu':
+        if node == 'master1':
+            y_lim_end = 60
+        else:
+            y_lim_end = 30
         cpu_usage(input_file=f'{path}/pu_cpu_{node}.csv', axs_row=axs_row, axs_col=axs_col,
-                  title=f'{distribution} Services (CPU)',
-                  x_label="Time (sec)", y_label="Usage (%)", y_lim_start=0, y_lim_end=60,
+                  title=f'{distribution} - CPU',
+                  x_label="Time (sec)", y_label="Usage (%)", y_lim_start=0, y_lim_end=y_lim_end,
                   legend_set=legend, set_x_label=True, label=distribution, color=color, services=services)
 
     if function == 'memory':
+        if node == 'master1':
+            y_lim_end = 4096
+        else:
+            y_lim_end = 2048
         memory_usage(input_file=f'{path}/pu_memory_{node}.csv', axs_row=axs_row, axs_col=axs_col,
-                     title=f'{distribution} Services (Memory)',
-                     x_label="Time (sec)", y_label="Usage (MBytes)", y_lim_start=0, y_lim_end=4096,
+                     title=f'{distribution} - Memory',
+                     x_label="Time (sec)", y_label="Usage (MBytes)", y_lim_start=0, y_lim_end=y_lim_end,
                      legend_set=legend, set_x_label=True, label=distribution, color=color, services=services)
 
 
 def process_data():
-    # services = ['Etcd/K8s-dqlite', 'Kube-apiserver', 'Kubelet', 'Containerd']
-    microk8s_services = ['K8s-dqlite', 'Kubelite', 'Containerd', 'calico-node']
-    k0s_services = ['Etcd', 'Kube-apiserver', 'K0s', 'Kubelet', 'Containerd', 'calico-node']
-    k3s_services = ['k3s-server', 'k3s-agent', 'Containerd', 'flannel']
-    microshift_services = ['Microshift', 'Microshift-etcd', 'CRI-O', 'OVN-controller', 'OVNkube']
+    if node == 'master1':
+        distributions = ['K0s', 'K3s', 'Microk8s', 'Microshift']
+    else:
+        distributions = ['K0s', 'K3s', 'Microk8s']
+    # microk8s_services = ['K8s-dqlite', 'Kubelite', 'Containerd', 'calico-node']
+    # k0s_services = ['Etcd', 'Kube-apiserver', 'K0s', 'Kubelet', 'Containerd', 'calico-node']
+    # k3s_services = ['k3s-server', 'k3s-agent', 'Containerd', 'flannel']
+    # microshift_services = ['Microshift', 'Microshift-etcd', 'CRI-O', 'OVN-controller', 'OVNkube']
 
-    for distribution in ('K0s', 'K3s', 'Microk8s', 'Microshift'):
+    if node == 'master1':
+        k0s_services = ['etcd', 'kube-apiserver', 'k0s', 'calico-node']
+        k3s_services = ['k3s-server']
+        microk8s_services = ['k8s-dqlite', 'kubelite', 'calico-node']
+        microshift_services = ['microshift', 'microshift-etcd', 'ovn-controller', 'ovnkube']
+    else:
+        k0s_services = ['kubelet', 'containerd', 'k0s', 'calico-node']
+        k3s_services = ['k3s-agent', 'containerd']
+        microk8s_services = ['kubelite', 'containerd', 'calico-node']
+        microshift_services = ['Microshift', 'Microshift-etcd', 'CRI-O', 'OVN-controller', 'OVNkube']
+
+    for distribution in distributions:
         if distribution == 'K0s':
             path = files_path[0]
             call_plot(path=path, distribution=distribution, color=color, services=k0s_services, function='cpu',
-                      axs_row=0, axs_col=0, legend=False)
+                      axs_row=0, axs_col=0, legend=True)
             call_plot(path=path, distribution=distribution, color=color, services=k0s_services, function='memory',
-                      axs_row=0, axs_col=1, legend=True)
+                      axs_row=0, axs_col=1, legend=False)
         elif distribution == 'K3s':
             path = files_path[1]
             call_plot(path=path, distribution=distribution, color=color, services=k3s_services, function='cpu',
-                      axs_row=1, axs_col=0, legend=False)
+                      axs_row=1, axs_col=0, legend=True)
             call_plot(path=path, distribution=distribution, color=color, services=k3s_services, function='memory',
-                      axs_row=1, axs_col=1, legend=True)
+                      axs_row=1, axs_col=1, legend=False)
         elif distribution == 'Microk8s':
             path = files_path[2]
             call_plot(path=path, distribution=distribution, color=color, services=microk8s_services, function='cpu',
-                      axs_row=2, axs_col=0, legend=False)
+                      axs_row=2, axs_col=0, legend=True)
             call_plot(path=path, distribution=distribution, color=color, services=microk8s_services, function='memory',
-                      axs_row=2, axs_col=1, legend=True)
+                      axs_row=2, axs_col=1, legend=False)
 
         elif distribution == 'Microshift':
             path = files_path[3]
             call_plot(path=path, distribution=distribution, color=color, services=microshift_services, function='cpu',
-                      axs_row=3, axs_col=0, legend=False)
-            call_plot(path=path, distribution=distribution, color=color, services=microshift_services, function='memory',
-                      axs_row=3, axs_col=1, legend=True)
+                      axs_row=3, axs_col=0, legend=True)
+            call_plot(path=path, distribution=distribution, color=color, services=microshift_services,
+                      function='memory',
+                      axs_row=3, axs_col=1, legend=False)
 
         else:
             continue
 
 
 process_data()
-
-plt.savefig(f'figures/pu_{deployment}_{workers}worker_{node}.png', dpi=800)
+plt.savefig(f'figures/pu_{deployment}_{workers}worker_{node}.png', dpi=600)
