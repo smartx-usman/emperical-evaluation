@@ -28,7 +28,9 @@ class Plots:
 
         if no_of_rows == 1 and no_of_cols == 2:
             # Uncomment for rows=1 and cols=2 or more
-            self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey, squeeze=False)
+            self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey)
+            #self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey, squeeze=False)
+
         elif no_of_rows == 1 and no_of_cols == 4:
             # Uncomment for rows=1 and cols=2 or more
             self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey, squeeze=False)
@@ -82,7 +84,7 @@ class Plots:
         self.fig.tight_layout()
 
     def time_instance_stack_plot(self, df, axs_row, axs_col, title, x_label, y_label, y_lim_start,
-                    y_lim_end, legend_set, legend_outside, set_x_label, color):
+                    y_lim_end, legend_set, legend_outside, set_x_label, color, services):
         self.axs[axs_row, axs_col].set_title(title)
 
         if set_x_label:
@@ -90,9 +92,14 @@ class Plots:
         self.axs[axs_row, axs_col].set_ylabel(y_label)
 
         if color == '':
-            df.plot(ax=self.axs[axs_row, axs_col], kind='line', stacked=True, colormap='YIOrBr')
+            # Define colormap
+            cmap = plt.get_cmap('YIOrBr')
+            colors = cmap(np.linspace(0, 1, len(services)))
+            df.plot(ax=self.axs[axs_row, axs_col], kind='line', stacked=True, colors=colors)
         else:
-            df.plot(ax=self.axs[axs_row, axs_col], kind='line', stacked=True, colormap=color)
+            cmap = plt.get_cmap(color)
+            colors = cmap(np.linspace(0, 1, len(services)))
+            self.axs[axs_row, axs_col].stackplot(df.index, df[services].T, labels=services, colors=colors)
 
         # Enable grid lines using Matplotlib
         self.axs[axs_row, axs_col].grid(True, linestyle='-', alpha=0.5, axis='y')
@@ -102,11 +109,11 @@ class Plots:
 
         if legend_set:
             if legend_outside:
-                self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper left', bbox_to_anchor=(1, 1))
+                self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper right', bbox_to_anchor=(1, 1))
             else:
-                self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper left')
-        else:
-            self.axs[axs_row, axs_col].get_legend().remove()  # Remove legend in each subplot
+                self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper right')
+        #else:
+        #    self.axs[axs_row, axs_col].get_legend().remove()  # Remove legend in each subplot
 
         self.fig.tight_layout()
 
@@ -203,6 +210,10 @@ class Plots:
             # Add a horizontal line
             if horizontal_line:
                 self.axs.axhline(hl_value1, color='red', linestyle='--', label='Horizontal Line')
+
+            # Y-Axis format without decimal places
+            self.axs.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
+
         else:
             if error:
                 sns.barplot(ax=self.axs[row_index, col_index], x=x, y=y, hue=hue, data=df, palette=color_palette,
@@ -253,6 +264,8 @@ class Plots:
                 else:
                     self.axs[row_index, col_index].legend(ncol=self.legend_columns, fontsize=9)
 
+            # Y-Axis format without decimal places
+            self.axs[row_index, col_index].get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
         # plt.title('Metrics Comparison for Different Kubernetes Distributions')
 
         # Adjust layout
@@ -329,4 +342,5 @@ class Plots:
         # self.axs[1].legend()
         self.axs[1].set_ylim(0, 250)
 
-        plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+        #plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+        plt.legend(loc='upper left')
