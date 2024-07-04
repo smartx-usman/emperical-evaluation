@@ -28,8 +28,8 @@ class Plots:
 
         if no_of_rows == 1 and no_of_cols == 2:
             # Uncomment for rows=1 and cols=2 or more
-            self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey)
-            #self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey, squeeze=False)
+            #self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey)
+            self.fig, self.axs = plt.subplots(no_of_rows, no_of_cols, sharex=sharex, sharey=sharey, squeeze=False)
 
         elif no_of_rows == 1 and no_of_cols == 4:
             # Uncomment for rows=1 and cols=2 or more
@@ -58,7 +58,7 @@ class Plots:
         self.fig.tight_layout()
 
     def time_instance_plot(self, df, x_col, y_col, label, axs_row, axs_col, title, x_label, y_label, y_lim_start,
-                    y_lim_end, legend_set, set_x_label, color, legend_outside=None):
+                           y_lim_end, legend_set, set_x_label, color, legend_outside=None):
         self.axs[axs_row, axs_col].set_title(title)
         if set_x_label:
             self.axs[axs_row, axs_col].set_xlabel(x_label)
@@ -77,19 +77,22 @@ class Plots:
 
         if legend_set:
             if legend_outside:
-                self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper left', bbox_to_anchor=(1, 1))
+                self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper left',
+                                                  bbox_to_anchor=(1, 1))
             else:
                 self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper right')
 
         self.fig.tight_layout()
 
     def time_instance_stack_plot(self, df, axs_row, axs_col, title, x_label, y_label, y_lim_start,
-                    y_lim_end, legend_set, legend_outside, set_x_label, color, services):
+                                 y_lim_end, legend_set, legend_outside, set_x_label, color, services, set_y_label=True):
         self.axs[axs_row, axs_col].set_title(title)
 
         if set_x_label:
             self.axs[axs_row, axs_col].set_xlabel(x_label)
-        self.axs[axs_row, axs_col].set_ylabel(y_label)
+
+        if set_y_label:
+            self.axs[axs_row, axs_col].set_ylabel(y_label)
 
         if color == '':
             # Define colormap
@@ -109,7 +112,8 @@ class Plots:
 
         if legend_set:
             if legend_outside:
-                self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper right', bbox_to_anchor=(1, 1))
+                self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper right',
+                                                  bbox_to_anchor=(1, 1))
             else:
                 self.axs[axs_row, axs_col].legend(ncol=self.legend_columns, fontsize=9, loc='upper right')
         #else:
@@ -153,7 +157,7 @@ class Plots:
     def seaborn_bar_plot(self, data, x, y, hue, x_label, y_label, row_index, col_index, ylim_start, ylim_end,
                          legend=None, format_axis_label=None, error=None, title=None, legend_outside=None,
                          horizontal_line=None, hl_value1=None, hl_value2=None,
-                         hatch=None, color=None):
+                         hatch=None, color=None, y_no_decimal=None):
         # Create a DataFrame from the data
         df = pd.DataFrame(data)
 
@@ -183,9 +187,11 @@ class Plots:
                 sns.barplot(ax=self.axs, x=x, y=y, hue=hue, data=df, palette='pastel', errwidth=1.5,
                             errcolor='gray', capsize=.02, edgecolor='black', linewidth=1)
             else:
-                df_median = df[df['Metric'] == 'Median']
-                sns.barplot(ax=self.axs, x=x, y=y, hue=hue, data=df_median, palette='pastel', edgecolor='black', linewidth=1,
-                            errorbar=error)
+                #df_median = df[df['Metric'] == 'Median']
+                #sns.barplot(ax=self.axs, x=x, y=y, hue=hue, data=df_median, palette='pastel', edgecolor='black', linewidth=1,
+                #            errorbar=error)
+                sns.barplot(ax=self.axs, x=x, y=y, hue=hue, data=df, palette=color_palette,
+                            edgecolor='black', linewidth=1, hatch=hatches, errorbar=error)
 
             # Enable grid lines using Matplotlib
             self.axs.grid(True, linestyle='--', alpha=0.5, axis='y')
@@ -200,6 +206,7 @@ class Plots:
             # Set labels and title
             self.axs.set_xlabel(x_label)
             self.axs.set_ylabel(y_label)
+
             if title:
                 self.axs.set_title(label=title)
 
@@ -212,6 +219,7 @@ class Plots:
                 self.axs.axhline(hl_value1, color='red', linestyle='--', label='Horizontal Line')
 
             # Y-Axis format without decimal places
+            #self.axs.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,.1f}".format(int(x))))
             self.axs.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
 
         else:
@@ -222,7 +230,10 @@ class Plots:
                 self.axs[row_index, col_index].get_legend().remove()  # Remove legend in each subplot
             else:
                 sns.barplot(ax=self.axs[row_index, col_index], x=x, y=y, hue=hue, data=df, palette=color_palette,
-                            edgecolor='black', linewidth=1, hatch=hatches)
+                            edgecolor='black', linewidth=1, hatch=hatches, errorbar=error)
+                #df_median = df[df['Metric'] == 'Median']
+                #sns.barplot(ax=self.axs[row_index, col_index], x=x, y=y, hue=hue, data=df_median, palette='pastel', edgecolor='black',
+                #            linewidth=1, errorbar=error)
                 if not legend:
                     self.axs[row_index, col_index].get_legend().remove()  # Remove legend in each subplot
 
@@ -232,12 +243,12 @@ class Plots:
             # Set the y-axis limits (ylim)
             self.axs[row_index, col_index].set_ylim(ylim_start, ylim_end)
 
-
             # Set labels and title
             self.axs[row_index, col_index].set_xlabel(x_label)
             self.axs[row_index, col_index].set_ylabel(y_label)
             if title:
                 self.axs[row_index, col_index].set_title(label=title)
+                # self.axs[row_index, col_index].set_title(label=title, y=-0.3) # Adjust title position at bottom
 
             # Format x-axis labels with commas
             if format_axis_label == 'x':
@@ -265,7 +276,11 @@ class Plots:
                     self.axs[row_index, col_index].legend(ncol=self.legend_columns, fontsize=9)
 
             # Y-Axis format without decimal places
-            self.axs[row_index, col_index].get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
+            if y_no_decimal:
+                #self.axs[row_index, col_index].get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,.0f}".format(int(x))))
+                #else:
+                self.axs[row_index, col_index].get_yaxis().set_major_formatter(
+                    plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
         # plt.title('Metrics Comparison for Different Kubernetes Distributions')
 
         # Adjust layout
@@ -301,16 +316,25 @@ class Plots:
         # Add custom legends
         if legend:
             # Define custom labels and colors for the legend
+            distributions = ['K0s-latency', 'K0s-throughput', 'K3s-latency', 'K3s-throughput',
+                             'Microk8s-latency', 'Microk8s-throughput', 'Microshift-latency', 'Microshift-throughput']
+            #distributions = ['K0s-latency', 'K0s-throughput', 'K3s-latency', 'K3s-throughput',
+            #                 'Microk8s-latency', 'Microk8s-throughput']
             custom_labels = distributions
-            custom_colors = ['blue', 'orange', 'green', 'red']
+            #custom_colors = ['blue', 'orange', 'green', 'red']
+            custom_colors = ['blue', 'blue', 'orange', 'orange', 'green', 'green', 'red', 'red']
+
+            #Define line styles
+            line_styles = ['-', '--', '-', '--', '-', '--', '-', '--']  # Solid and dotted lines
 
             # Create custom legend
-            for label, color in zip(custom_labels, custom_colors):
-                plt.plot([], label=label, color=color)
+            for label, color, style in zip(custom_labels, custom_colors, line_styles):
+                plt.plot([], label=label, color=color, linestyle=style)
 
             # Remove existing legends (if any)
             plt.legend().remove()
-            plt.legend(loc='upper left', ncol=self.legend_columns, bbox_to_anchor=(1.30, 1), fontsize=9)
+            #plt.legend(loc='upper left', ncol=self.legend_columns, bbox_to_anchor=(1.30, 1), fontsize=9)
+            plt.legend(loc='upper left', ncol=self.legend_columns, fontsize=9, bbox_to_anchor=(1.33, 1))
 
         plt.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
         plt.tight_layout()
