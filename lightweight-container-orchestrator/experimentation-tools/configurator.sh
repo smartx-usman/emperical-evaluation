@@ -8,7 +8,7 @@ BBlue='\e[44m'
 FDefault='\e[49m'
 
 LOGFILE="./overhead.log"
-HOME_PATH="/home/aida"
+HOME_PATH="$HOME"
 BASE_PATH="${HOME_PATH}/k-bench"
 CONFIG_PATH="config/default"
 

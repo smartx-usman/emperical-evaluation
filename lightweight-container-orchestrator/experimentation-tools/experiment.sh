@@ -7,6 +7,7 @@ source ./configurator.sh
 if [ "$#" -ne 4 ]; then
     echo "$Yellow Usage: $0 <operation> <object_type> <no_of_workers> <repetitions>" >&3
     echo "$Yellow E.g., ./experiment.sh create deployment 1 0" >&3
+    echo "$Yellow E.g., ./experiment.sh all deployment 1 0" >&3
     echo "$Yellow E.g., ./experiment.sh all pod 3 2" >&3
     exit 1
 fi

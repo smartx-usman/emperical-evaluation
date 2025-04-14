@@ -10,7 +10,7 @@ pd.set_option('display.max_rows', None)
 graph = 'single'  # 'simple' or 'multi', 'single'
 deployment = 'pod'  # 'pod' or 'deployment'
 workers = 1  # 1, 2, 3, 4, 5
-run = 1  # 1, 3
+run = 3  # 1, 3
 node = 'master'  # master or worker1 or workers
 distributions = ('K0s', 'K3s', 'Microk8s', 'Microshift')
 distributions = ('Microk8s','test')
@@ -63,7 +63,7 @@ def cpu_usage(input_file, axs_row, axs_col, title, x_label, y_label, y_lim_start
               label, color):
     """Plot CPU Usage"""
     df = pd.read_csv(input_file)
-    df['time'] = pd.to_datetime(df['timestamp'])
+    df['time'] = pd.to_datetime(df['timestamp'], format="%H:%M:%S")
     # df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s', origin='unix')
     df['value'] = (100 - df['idle'])
 
@@ -97,7 +97,7 @@ def memory_usage(input_file, axs_row, axs_col, title, x_label, y_label, y_lim_st
                  label, color, legend_outside):
     """Plot CPU Usage"""
     df = pd.read_csv(input_file)
-    df['time'] = pd.to_datetime(df['timestamp'])
+    df['time'] = pd.to_datetime(df['timestamp'], format="%H:%M:%S")
     # df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s', origin='unix')
     df['value'] = (df['kbmemused'] / 1000)
 
@@ -116,7 +116,7 @@ def disk_usage(input_file, axs_row, axs_col, title, x_label, y_label, y_lim_star
                label, color):
     """Plot CPU Usage"""
     df = pd.read_csv(input_file)
-    df['time'] = pd.to_datetime(df['timestamp'])
+    df['time'] = pd.to_datetime(df['timestamp'], format="%H:%M:%S")
     df['value'] = (df['p_util'])
 
     # Create an index column. Multiply index by 5 to convert to seconds
@@ -134,7 +134,7 @@ def network_usage(input_file, axs_row, axs_col, title, x_label, y_label, y_lim_s
                   set_x_label, label, color):
     """Plot CPU Usage"""
     df = pd.read_csv(input_file)
-    df['time'] = pd.to_datetime(df['timestamp'])
+    df['time'] = pd.to_datetime(df['timestamp'], format="%H:%M:%S")
     df['value'] = (df['rxkB/s'])
 
     # Create an index column. Multiply index by 5 to convert to seconds

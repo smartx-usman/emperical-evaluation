@@ -10,27 +10,29 @@ import warnings
 # Filter out the specific warning message
 warnings.filterwarnings("ignore", message="FixedFormatter should only be used together with FixedLocator")
 
-
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 # Subplots layout
-no_of_rows = 2
+no_of_rows = 1
 no_of_cols = 2
-sharex = 'none'
+sharex = 'col'
 sharey = 'none'
 legend_columns = 1
-figure_width = 8.0  # inches
-#figure_width = 6.0  # inches
-#figure_height = 3.5  # inches for single row charts
-figure_height = 6.0  # inches for two row charts
+figure_width = 8.5  # inches
+#figure_width = 4.0  # inches
+#figure_height = 6.0  # inches
+#figure_height = figure_width / 1.9  # maintaining an aspect ratio, e.g., golden
+figure_height = 3.5  # inches for single row charts
+#figure_height = 3.0  # inches for single row charts
+#figure_height = 5.0  # inches for two row charts
 # figure_height = 7.0  # inches for four row charts
 
 # Create the plot object
 my_plot_object = Plots(no_of_rows, no_of_cols, sharex, sharey, legend_columns, figure_width, figure_height)
 
 
-def seaborn_bar_plot_process():
+def seaborn_bar_plot_process(type=None):
     data_deployment = []
     data_rest = []
     k8s_distributions = ['K0s', 'K3s', 'Microk8s', 'Microshift']
@@ -47,13 +49,19 @@ def seaborn_bar_plot_process():
         # 40 deployments
         data_deployment_values = [
             # k0s deployment API latency results (median, min, max)
-            74.524, 39.63, 351.01, 27.04, 2.49, 100.2, 55.98, 8.73, 114.37, 513.29, 9.30, 927.79, 12.25, 4.95, 993.11,
+            #.074524, 39.63, 351.01, 27.04, 2.49, 100.2, 55.98, 8.73, 114.37, 513.29, 9.30, 927.79, 12.25, 4.95, 993.11,
+            .074524, 0.03963, 0.35101, 0.02704, 0.00249, 0.1002, 0.05598, 0.00873, 0.11437, 0.51329, 0.00930, 0.92779,
+            0.01225,
+            0.00495, 0.99311,
             # k3s deployment API latency results (median, min, max)
-            93.23, 45.67, 234.44, 97.29, 10.21, 184.50, 107.37, 6.59, 210.71, 434.96, 6.45, 941.46, 11.61, 6.01, 490.56,
+            .09323, 0.04567, 0.23444, 0.09729, 0.01021, 0.18450, 0.10737, 0.00659, 0.21071, 0.43496, 0.00645, 0.94146,
+            0.01161, 0.00601, 0.49056,
             # Microk8s deployment API latency results (median, min, max)
-            324.59, 66.11, 674.39, 4.79, 2.74, 55.7, 126.54, 16.25, 1154.4, 977.6, 77.2, 1743.8, 725.6, 403.1, 1980.99,
+            .32459, 0.06611, 0.67439, 0.00479, 0.00274, 0.0557, 0.12654, 0.01625, 1.1544, 0.9776, 0.0772, 1.7438,
+            0.7256, 0.4031, 1.98099,
             # Microshift deployment API latency results (median, min, max)
-            115.4, 30.43, 1126.35, 21.78, 3.07, 55.39, 79.02, 8.16, 141.42, 449.55, 9.47, 1392.6, 220.16, 13.2, 2056.97
+            .1154, 0.03043, 1.12635, 0.02178, 0.00307, 0.05539, 0.07902, 0.00816, 0.14142, 0.44955, 0.00947, 1.3926,
+            0.22016, 0.0132, 2.05697
         ]
 
         # 20 deployments
@@ -89,21 +97,92 @@ def seaborn_bar_plot_process():
 
                     # For equation result calculation
                     if metric == 'Median':
-                        median_value = data_deployment_values[pos-1]
+                        median_value = data_deployment_values[pos - 1]
                     #if metric == 'Max':
                     #    max_value = data_deployment_values[pos-1]
                 result = round(0.2 * (median_value / max_values[action]), 3)
                 cpd_result = round(cpd_result + result, 3)
-                print(f'Distribution: {distro}, Operation: {action}, Median: {median_value}, Max: {max_values[action]}, '
-                      f'Result: {result}\n')
+                print(
+                    f'Distribution: {distro}, Operation: {action}, Median: {median_value}, Max: {max_values[action]}, '
+                    f'Result: {result}\n')
             print(f'Distribution: {distro}, CPD Result: {cpd_result}\n')
 
         my_plot_object.seaborn_bar_plot(data=data_deployment, x='Action', y='Value', hue='Distribution',
-                                        x_label='Action', y_label='API Latency (ms)',
-                                        row_index=0, col_index=0, ylim_start=0, ylim_end=1000,
-                                        legend=True, legend_outside=True, format_axis_label='none', error=None)
+                                        x_label='Action', y_label='API Latency (s)',
+                                        #title='Deployment APIs Latency.',
+                                        row_index=0, col_index=0, ylim_start=0, ylim_end=1,
+                                        legend=True, legend_outside=None, format_axis_label='none', error=None,
+                                        y_no_decimal=None)
 
-        plt.savefig(f'figures/{deployment}_api_latency_{workers}worker.png', dpi=800)
+        #plt.savefig(f'figures/{deployment}_api_latency_{workers}worker.png', dpi=800)
+
+        # Start remove from here other apis
+        # max_values = {"Namespace": 6.68,
+        #               "Service": 17.58,
+        #               "PV": 6.70,
+        #               "PVC": 5.83}
+        #
+        # metrics = ['Median', 'Min', 'Max']
+        # operations_rest = ['Namespace', 'Service', 'PV', 'PVC']
+        # data_rest_values = [
+        #     # k0s deployment API latency results (median, min, max)
+        #     2.13, 1.58, 2.55, 6.89, 0.39, 13.24, 0.73, 0.14, 0.77, 0.62, 0.19, 1.12,
+        #     # k3s deployment API latency results (median, min, max)
+        #     1.28, 0.36, 1.96, 3.07, 0.52, 5.41, 0.47, 0.39, 0.86, 0.67, 0.23, 1.12,
+        #     # Microk8s deployment API latency results (median, min, max)
+        #     4.59, 1.61, 6.68, 10.84, 1.41, 17.58, 4.33, 0.81, 6.70, 2.75, 0.48, 5.83,
+        #     # Microshift deployment API latency results (median, min, max)
+        #     2.21, 1.61, 2.94, 5.05, 0.39, 5.27, 0.94, 0.30, 1.14, 0.85, 0.29, 1.67
+        # ]
+        # pos = 0
+        #
+        # # Nested loops to iterate over distributions, operations, and metrics
+        # for distro in k8s_distributions:
+        #     ood_result = 0
+        #     for operation in operations_rest:
+        #         for metric in metrics:
+        #             # Create a dictionary for each combination of values
+        #             data_dict = {
+        #                 'Distribution': distro,
+        #                 'Operation': operation,
+        #                 'Metric': metric,
+        #                 'Value': data_rest_values[pos]  # You can set the initial value as needed
+        #             }
+        #             # Append the dictionary to the list
+        #             data_rest.append(data_dict)
+        #             pos += 1
+        #
+        #             # For equation result calculation
+        #             if metric == 'Median':
+        #                 median_value = data_rest_values[pos - 1]
+        #             # if metric == 'Max':
+        #             #    max_value = data_rest_values[pos - 1]
+        #
+        #             if operation == 'Namespace':
+        #                 weight = 0.20
+        #             elif operation == 'Service':
+        #                 weight = 0.50
+        #             elif operation == 'PV':
+        #                 weight = 0.15
+        #             else:
+        #                 weight = 0.15
+        #
+        #         result = round(weight * (median_value / max_values[operation]), 3)
+        #         ood_result = round(ood_result + result, 3)
+        #         print(
+        #             f'Distribution: {distro}, Operation: {operation}, Median: {median_value}, Max: {max_values[operation]}, '
+        #             f'Result: {result}\n')
+        #     print(f'Distribution: {distro}, CPO Result: {ood_result}\n')
+        #
+        # my_plot_object.seaborn_bar_plot(data=data_rest, x='Operation', y='Value', hue='Distribution',
+        #                                 x_label='Type of Object', y_label='Create API Latency (s)',
+        #                                 title='Other objects APIs Latency.',
+        #                                 row_index=0, col_index=1, ylim_start=0, ylim_end=20,
+        #                                 error=True, legend=True, format_axis_label='none', y_no_decimal=True)
+        # plt.savefig(f'figures/{deployment}_apis_latency.png', dpi=800)
+        plt.savefig(f'figures/control_actions_latency.png', dpi=800)
+        # End Remove from here other apis
+
     elif deployment == 'other':
         max_values = {"Namespace": 6.68,
                       "Service": 17.58,
@@ -157,15 +236,17 @@ def seaborn_bar_plot_process():
 
                 result = round(weight * (median_value / max_values[operation]), 3)
                 ood_result = round(ood_result + result, 3)
-                print(f'Distribution: {distro}, Operation: {operation}, Median: {median_value}, Max: {max_values[operation]}, '
-                      f'Result: {result}\n')
+                print(
+                    f'Distribution: {distro}, Operation: {operation}, Median: {median_value}, Max: {max_values[operation]}, '
+                    f'Result: {result}\n')
             print(f'Distribution: {distro}, CPO Result: {ood_result}\n')
 
         my_plot_object.seaborn_bar_plot(data=data_rest, x='Operation', y='Value', hue='Distribution',
-                                        x_label='Type of Object', y_label='Create API Latency (sec)',
+                                        x_label='Type of Object', y_label='Create API Latency (s)',
                                         row_index=0, col_index=0, ylim_start=0, ylim_end=20,
                                         error=True, legend=True, format_axis_label='none')
-        plt.savefig(f'figures/{deployment}_apis_latency.png', dpi=800)
+        #plt.savefig(f'figures/{deployment}_apis_latency.png', dpi=800)
+        plt.savefig(f'figures/control_others_latency.png', dpi=800)
     elif deployment == 'baseline-master':
         cluster_nodes = ['master']
         metrics = ['CPU', 'Memory', 'Disk', 'Network']
@@ -179,9 +260,11 @@ def seaborn_bar_plot_process():
                 if distro == 'Ubuntu':
                     baseline_ubuntu_master[metric] = calculate_metric_mean(
                         file_path=f'system_usage_baseline_ubuntu/output_su_master', metric=metric)
+                    print(f'Metric: {metric}, value: {baseline_ubuntu_master[metric]}')
                 else:
                     baseline_rhel_master[metric] = calculate_metric_mean(
                         file_path=f'system_usage_baseline_rhel/output_su_master', metric=metric)
+                    print(f'Metric: {metric}, value: {baseline_rhel_master[metric]}')
 
         # Nested loops to iterate over distributions, operations, and metrics
         for distro in k8s_distributions:
@@ -201,18 +284,18 @@ def seaborn_bar_plot_process():
                         avg = calculate_metric_mean(file_path=f'microshift/system_usage_idle/output_su_{node}',
                                                     metric=metric)
 
-                    # print(f'Metric: {metric}, value: {round(avg/100, 3)}')
+                    print(f'Metric: {metric}, Actual_value: {round(avg, 3)}, value: {round(avg / 100, 3)}')
 
                     if metric == 'CPU':
-                        weight = 0.4
-                    elif metric == 'Memory':
                         weight = 0.25
+                    elif metric == 'Memory':
+                        weight = 0.4
                     elif metric == 'Disk':
                         weight = 0.20
                     elif metric == 'Network':
                         weight = 0.15
 
-                    print(f'Weighted {metric} Value: {round((avg / 100) * weight, 3)}')
+                    #print(f'Weighted {metric} Value: {round((avg / 100) * weight, 3)}')
                     final_sum = final_sum + round((avg / 100) * weight, 3)
 
                     # Create a dictionary for each combination of values
@@ -232,11 +315,11 @@ def seaborn_bar_plot_process():
                         disk_data_master.append(data_dict)
                     else:
                         network_data_master.append(data_dict)
-                print(f'Final Result: {round(final_sum, 3)}\n')
+                #print(f'Final Result: {round(final_sum, 3)}\n')
 
         my_plot_object.seaborn_bar_plot(data=cpu_data_master, x='Node', y='Value', hue='Distribution',
                                         x_label='Cluster Node', y_label='Average CPU Usage (%)',
-                                        row_index=0, col_index=0, ylim_start=0, ylim_end=20,
+                                        row_index=0, col_index=0, ylim_start=0, ylim_end=40,
                                         error=False, legend=False, format_axis_label='none',
                                         horizontal_line=True, hl_value1=baseline_ubuntu_master['CPU'],
                                         hl_value2=baseline_rhel_master['CPU'])
@@ -254,7 +337,7 @@ def seaborn_bar_plot_process():
                                         hl_value2=baseline_rhel_master['Disk'])
         my_plot_object.seaborn_bar_plot(data=network_data_master, x='Node', y='Value', hue='Distribution',
                                         x_label='Cluster Node', y_label='Average Network Usage (txkB/s)',
-                                        row_index=0, col_index=3, ylim_start=0, ylim_end=4,
+                                        row_index=0, col_index=3, ylim_start=0, ylim_end=10,
                                         error=False, legend=True, format_axis_label='none',
                                         horizontal_line=True, hl_value1=baseline_ubuntu_master['Network'],
                                         hl_value2=baseline_rhel_master['Network'])
@@ -275,12 +358,14 @@ def seaborn_bar_plot_process():
                 if distro == 'Ubuntu':
                     baseline_ubuntu_worker[metric] = calculate_metric_mean(
                         file_path=f'system_usage_baseline_ubuntu/output_su_worker1', metric=metric)
+                    print(f'Metric: {metric}, value: {baseline_ubuntu_worker[metric]}')
                 else:
                     baseline_rhel_master[metric] = calculate_metric_mean(
                         file_path=f'system_usage_baseline_rhel/output_su_master', metric=metric)
 
         # Nested loops to iterate over distributions, operations, and metrics
         for distro in k8s_distributions:
+            print(f'Distribution: {distro}')
             for node in cluster_nodes:
                 for metric in metrics:
                     # Calculate the mean of the metric
@@ -297,6 +382,8 @@ def seaborn_bar_plot_process():
                                                         metric=metric)
                         else:
                             avg = 0
+
+                    print(f'Metric: {metric}, Actual_value: {round(avg, 3)}, value: {round(avg, 2)}')
 
                     # Create a dictionary for each combination of values
                     data_dict = {
@@ -318,7 +405,7 @@ def seaborn_bar_plot_process():
 
         my_plot_object.seaborn_bar_plot(data=cpu_data_workers, x='Node', y='Value', hue='Distribution',
                                         x_label='Cluster Node', y_label='Average CPU Usage (%)',
-                                        row_index=0, col_index=0, ylim_start=0, ylim_end=20,
+                                        row_index=0, col_index=0, ylim_start=0, ylim_end=40,
                                         error=False, legend=False, format_axis_label='none',
                                         horizontal_line=True, hl_value1=baseline_ubuntu_worker['CPU'])
         my_plot_object.seaborn_bar_plot(data=memory_data_workers, x='Node', y='Value', hue='Distribution',
@@ -333,13 +420,13 @@ def seaborn_bar_plot_process():
                                         horizontal_line=True, hl_value1=baseline_ubuntu_worker['Disk'])
         my_plot_object.seaborn_bar_plot(data=network_data_workers, x='Node', y='Value', hue='Distribution',
                                         x_label='Cluster Node', y_label='Average Network Usage (txkB/s)',
-                                        row_index=0, col_index=3, ylim_start=0, ylim_end=4,
+                                        row_index=0, col_index=3, ylim_start=0, ylim_end=10,
                                         error=False, legend=True, format_axis_label='none',
                                         horizontal_line=True, hl_value1=baseline_ubuntu_worker['Network'])
 
         plt.savefig(f'figures/su_baseline_worker.png', dpi=800)
     elif deployment == 'dp-latency':
-        k8s_distributions = ['K0s-MN', 'K0s-WN', 'K3s-MN', 'K3s-WN', 'Microk8s-MN', 'Microk8s-WN', 'Microshift-MN']
+        #k8s_distributions = ['K0s-MN', 'K0s-WN', 'K3s-MN', 'K3s-WN', 'Microk8s-MN', 'Microk8s-WN', 'Microshift-MN']
         requests = ['50000', '100000', '150000']
         metrics = ['Latency', 'Throughput']
 
@@ -402,22 +489,22 @@ def seaborn_bar_plot_process():
                                   470.17, 501.47, 532.59,
                                   778.30, 777.26, 755.45]
 
-        k0s_ci_latency_1replica_mn        = [118.10, 117.76, 118.80]
-        k3s_ci_latency_1replica_mn        = [125.60, 125.14, 124.46]
-        microk8s_ci_latency_1replica_mn   = [119.76, 120.82, 125.72]
+        k0s_ci_latency_1replica_mn = [118.10, 117.76, 118.80]
+        k3s_ci_latency_1replica_mn = [125.60, 125.14, 124.46]
+        microk8s_ci_latency_1replica_mn = [119.76, 120.82, 125.72]
         microshift_ci_latency_1replica_mn = [127.42, 127.90, 131.80]
-        k0s_np_latency_1replica_mn        = [145.00, 142.88, 144.44]
-        k3s_np_latency_1replica_mn        = [140.96, 139.26, 137.96]
-        microk8s_np_latency_1replica_mn   = [139.60, 140.00, 139.92]
+        k0s_np_latency_1replica_mn = [145.00, 142.88, 144.44]
+        k3s_np_latency_1replica_mn = [140.96, 139.26, 137.96]
+        microk8s_np_latency_1replica_mn = [139.60, 140.00, 139.92]
         microshift_np_latency_1replica_mn = [136.14, 137.84, 138.70]
 
-        k0s_ci_throughput_1replica_mn        = [786.40, 844.54, 835.42]
-        k3s_ci_throughput_1replica_mn        = [789.98, 816.17, 811.62]
-        microk8s_ci_throughput_1replica_mn   = [828.14, 824.19, 791.88]
+        k0s_ci_throughput_1replica_mn = [786.40, 844.54, 835.42]
+        k3s_ci_throughput_1replica_mn = [789.98, 816.17, 811.62]
+        microk8s_ci_throughput_1replica_mn = [828.14, 824.19, 791.88]
         microshift_ci_throughput_1replica_mn = [778.30, 777.26, 755.45]
-        k0s_np_throughput_1replica_mn        = [685.57, 695.78, 689.02]
-        k3s_np_throughput_1replica_mn        = [705.18, 715.25, 722.60]
-        microk8s_np_throughput_1replica_mn   = [686.80, 711.49, 712.47]
+        k0s_np_throughput_1replica_mn = [685.57, 695.78, 689.02]
+        k3s_np_throughput_1replica_mn = [705.18, 715.25, 722.60]
+        microk8s_np_throughput_1replica_mn = [686.80, 711.49, 712.47]
         microshift_np_throughput_1replica_mn = [692.99, 721.42, 718.03]
 
         k0s_ci_latency_1replica_wn = [183.70, 172.18, 157.68]
@@ -545,37 +632,44 @@ def seaborn_bar_plot_process():
             #                                 row_index=1, col_index=1, ylim_start=0, ylim_end=1400,
             #                                 format_axis_label='x')
         else:
-            for row_index in (0, 1):
-                for col_index in (0, 1):
-                    legend = False
-
+            scenario = 'scenario_mn'  # scenario_mn, scenario_wn
+            #for row_index in (0, 1):
+            #for col_index in (0, 1):
+            for col_index in (0, 1):
+                row_index = 0
+                legend = False
+                if scenario == 'scenario_mn':
                     if row_index == 0 and col_index == 0:
-                        title = 'ClusterIP Service (MN)'
+                        title = 'ClusterIP Service'  # ClusterIP Service (MN)
                         y1_lim_start = 100
                         y1_lim_end = 250
                         y2_lim_start = 500
                         y2_lim_end = 900
-                    elif row_index == 0 and col_index == 1:
-                        title = 'NodePort Service (MN)'
-                        y1_lim_start = 100
-                        y1_lim_end = 250
-                        y2_lim_start = 500
-                        y2_lim_end = 900
-                    elif row_index == 1 and col_index == 0:
-                        title = 'ClusterIP Service (WN)'
-                        y1_lim_start = 120
-                        y1_lim_end = 250
-                        y2_lim_start = 400
-                        y2_lim_end = 700
                     else:
-                        title = 'NodePort Service (WN)'
-                        y1_lim_start = 120
-                        y1_lim_end = 240
+                        title = 'NodePort Service'  # NodePort Service (MN)
+                        y1_lim_start = 100
+                        y1_lim_end = 250
+                        y2_lim_start = 500
+                        y2_lim_end = 900
+                else:
+                    if row_index == 0 and col_index == 0:
+                        title = 'ClusterIP Service'  # ClusterIP Service (WN)
+                        y1_lim_start = 100
+                        y1_lim_end = 250
                         y2_lim_start = 400
-                        y2_lim_end = 800
+                        y2_lim_end = 900
+                    else:
+                        title = 'NodePort Service'  # NodePort Service (WN)
+                        y1_lim_start = 100
+                        y1_lim_end = 250
+                        y2_lim_start = 400
+                        y2_lim_end = 900
 
-                    k8s_distributions = ['K0s', 'K3s', 'Microk8s', 'Microshift']
-                    for distro in k8s_distributions:
+                        row_index = 0  # Remove it later
+
+                k8s_distributions = ['K0s', 'K3s', 'Microk8s', 'Microshift']
+                for distro in k8s_distributions:
+                    if scenario == 'scenario_mn':
                         if row_index == 0 and col_index == 0:
                             if distro == 'K0s':
                                 latency_data = k0s_ci_latency_1replica_mn
@@ -595,7 +689,8 @@ def seaborn_bar_plot_process():
                                 throughput_data = microshift_ci_throughput_1replica_mn
 
                             print(f'Latency: {latency_data[1]}  Throughput: {throughput_data[1]}')
-                            print(f'Service: ClusterIP Distribution: {distro} Latency: {round(0.6 * latency_data[1]/142.88 , 3)} Throughput: {round(0.6 * (1 - (throughput_data[1]/844.54)), 3)}')
+                            print(
+                                f'Service: ClusterIP Distribution: {distro} Latency: {round(0.6 * latency_data[1] / 142.88, 3)} Throughput: {round(0.6 * (1 - (throughput_data[1] / 844.54)), 3)}')
 
                         elif row_index == 0 and col_index == 1:
                             if distro == 'K0s':
@@ -619,8 +714,8 @@ def seaborn_bar_plot_process():
                             print(f'Latency: {latency_data[1]}  Throughput: {throughput_data[1]}')
                             print(
                                 f'Service: ClusterIP Distribution: {distro} Latency: {round(0.4 * latency_data[1] / 142.88, 3)} Throughput: {round(0.4 * (1 - (throughput_data[1] / 844.54)), 3)}')
-
-                        elif row_index == 1 and col_index == 0:
+                    else:
+                        if row_index == 0 and col_index == 0:
                             if distro == 'K0s':
                                 latency_data = k0s_ci_latency_1replica_wn
                                 throughput_data = k0s_ci_throughput_1replica_wn
@@ -641,6 +736,7 @@ def seaborn_bar_plot_process():
                                 latency_data = k0s_np_latency_1replica_wn
                                 throughput_data = k0s_np_throughput_1replica_wn
                                 color = 'blue'
+                                legend = True
                             elif distro == 'K3s':
                                 color = 'orange'
                                 latency_data = k3s_np_latency_1replica_wn
@@ -653,8 +749,8 @@ def seaborn_bar_plot_process():
                                 latency_data = ''
                                 throughput_data = ''
 
-                        if latency_data and throughput_data:
-                            my_plot_object.dual_axis_plot(x_data=requests,
+                    if latency_data and throughput_data:
+                        my_plot_object.dual_axis_plot(x_data=requests,
                                                       y1_data=latency_data, y2_data=throughput_data,
                                                       title=title,
                                                       legend=legend,
@@ -690,7 +786,7 @@ def seaborn_bar_plot_process():
             #                                 row_index=1, col_index=1, ylim_start=0, ylim_end=1000,
             #                                 format_axis_label='x')
 
-        plt.savefig(f'figures/dp_{display}_latency_throughput.png', dpi=800)
+        plt.savefig(f'figures/dp_{scenario}_latency_throughput.png', dpi=800)
     elif deployment == 'cp-latency':
         pods = ['1', '2', '4', '8', '16', '32', '64']
         metrics = ['Latency', 'Throughput']
@@ -734,14 +830,18 @@ def seaborn_bar_plot_process():
                 throughput_data_3replica.append(data_dict_throughput_3replica)
                 pos += 1
 
-        my_plot_object.seaborn_bar_plot(data=latency_data_3replica, x='Pods', y='Value', hue='Distribution',
-                                        x_label='No. of Deployments', y_label='Average Latency (sec)',
-                                        row_index=0, col_index=0, ylim_start=0, ylim_end=15)
-        my_plot_object.seaborn_bar_plot(data=throughput_data_3replica, x='Pods', y='Value', hue='Distribution',
-                                        x_label='No. of Deployments', y_label='Average Throughput (pods/min)',
-                                        row_index=0, col_index=1, ylim_start=0, ylim_end=1100, legend=True)
+        if type == 'latency':
+            my_plot_object.seaborn_bar_plot(data=latency_data_3replica, x='Pods', y='Value', hue='Distribution',
+                                            x_label='No. of Deployments', y_label='Average Latency (s)',
+                                            row_index=0, col_index=0, ylim_start=0, ylim_end=15, legend=True)
+            plt.savefig(f'figures/cp_latency.png', dpi=800)
 
-        plt.savefig(f'figures/cp_latency_throughput.png', dpi=800)
+        if type == 'throughput':
+            my_plot_object.seaborn_bar_plot(data=throughput_data_3replica, x='Pods', y='Value', hue='Distribution',
+                                            x_label='No. of Deployments', y_label='Average Throughput (pods/min)',
+                                            row_index=0, col_index=0, ylim_start=0, ylim_end=1100, legend=True)
+
+            plt.savefig(f'figures/cp_throughput.png', dpi=800)
     else:
         print('Invalid deployment type.')
         sys.exit(1)
@@ -827,11 +927,11 @@ def pod_latency_throughput_processor(num_pods):
 
     # files_path = f'microk8s/pod_3worker_1run'
     my_plot_object.dual_bar_plot(x_data=num_pods,
-                                 y1_data=avg_latencies_owp, y2_data=avg_latencies_mwp, y3_data=throughput_owp,
-                                 y4_data=throughput_mwp,
-                                 label1="One Worker", label2="Three Workers",
-                                 x_label="Pods created concurrently", y_label_1="Latency (sec)",
-                                 y_label_2="Throughput (min)")
+                                 y1_data=avg_latencies_owp, y2_data=avg_latencies_mwp,
+                                 y3_data=throughput_owp, y4_data=throughput_mwp,
+                                 label1="No. of worker nodes = 1", label2="No. of worker nodes = 3",
+                                 x_label="Pods created concurrently", y_label_1="Average Latency (s)",
+                                 y_label_2="Average Throughput (Pods/min)")
     plt.savefig(f'figures/{distribution}_pod_latency_throughput.png', dpi=800)
 
 
@@ -848,6 +948,9 @@ distribution = 'microk8s'  # 'baseline' or 'microk8s' or 'k0s' or 'k3s' or 'micr
 
 # [Start] Create Seaborn bar plots
 seaborn_bar_plot_process()
+
+#deployment = 'other'
+#seaborn_bar_plot_process('latency')
 # [End] Create Seaborn bar plots
 
 # [Start] Create other plots

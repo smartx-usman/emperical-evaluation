@@ -16,8 +16,6 @@ class Plots:
 
     plt.rcParams["figure.autolayout"] = True
 
-    fig, axs = plt.subplots(no_of_rows, no_of_cols, sharex='none', sharey='none')
-
     def __init__(self, no_of_rows, no_of_cols, sharex, sharey, legend_columns, width, height):
         self.no_of_rows = no_of_rows
         self.no_of_cols = no_of_cols
@@ -218,9 +216,9 @@ class Plots:
             if horizontal_line:
                 self.axs.axhline(hl_value1, color='red', linestyle='--', label='Horizontal Line')
 
-            # Y-Axis format without decimal places
-            #self.axs.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,.1f}".format(int(x))))
-            self.axs.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
+            # Y-Axis format with/without decimal places
+            self.axs.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:.1f}".format(x)))
+            # self.axs.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
 
         else:
             if error:
@@ -368,3 +366,6 @@ class Plots:
 
         #plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
         plt.legend(loc='upper left')
+
+    def save_figure(self, file_name, resolution=600):
+        self.fig.savefig(file_name, dpi=resolution)

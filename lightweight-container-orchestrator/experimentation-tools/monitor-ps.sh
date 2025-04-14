@@ -8,7 +8,7 @@ if [ "$#" -ne 4 ]; then
     exit 1
 fi
 
-HOME_PATH="/home/aida"
+HOME_PATH="$HOME"
 
 # Check type of the distribution
 distribution=$1
@@ -25,7 +25,7 @@ wait_time=$4
 # Get the hostname for naming output files
 host=$(hostname)
 
-# Check if the output file already exists, then remove them
+# Check if the output files already exist, then remove them
 find "$HOME_PATH" -type f -name "pu_*" -exec rm {} \;
 
 microk8s_master_processes="k8s-dqlite|kubelite|calico-node"

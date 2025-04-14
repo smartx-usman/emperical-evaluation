@@ -37,8 +37,6 @@ legend_columns = 1
 # Create the plot object
 my_plot_object = Plots(no_of_rows, no_of_cols, sharex, sharey, legend_columns, figure_width, figure_height)
 
-
-
 files_path = [f'k0s/pu_{workers}worker_{run}run',
               f'k3s/pu_{workers}worker_{run}run',
               f'microk8s/pu_{workers}worker_{run}run',
@@ -137,7 +135,8 @@ def call_plot(path, distribution, color, services, function, axs_row, axs_col, l
         cpu_usage(input_file=f'{path}/pu_cpu_{node}.csv', axs_row=axs_row, axs_col=axs_col,
                   title=f'{distribution}',
                   x_label="Time (sec)", y_label="CPU Usage (%)", y_lim_start=0, y_lim_end=y_lim_end,
-                  legend_set=legend, set_x_label=True, set_y_label=set_y_label, label=distribution, color=color, services=services)
+                  legend_set=legend, set_x_label=True, set_y_label=set_y_label, label=distribution, color=color,
+                  services=services)
 
     if function == 'memory':
         if node == 'master1':
@@ -147,7 +146,8 @@ def call_plot(path, distribution, color, services, function, axs_row, axs_col, l
         memory_usage(input_file=f'{path}/pu_memory_{node}.csv', axs_row=axs_row, axs_col=axs_col,
                      title=f'',
                      x_label="Time (sec)", y_label="Memory Usage (MB)", y_lim_start=0, y_lim_end=y_lim_end,
-                     legend_set=legend, set_x_label=True, set_y_label=set_y_label, label=distribution, color=color, services=services)
+                     legend_set=legend, set_x_label=True, set_y_label=set_y_label, label=distribution, color=color,
+                     services=services)
 
 
 def process_data():
@@ -155,10 +155,6 @@ def process_data():
         distributions = ['K0s', 'K3s', 'Microk8s', 'Microshift']
     else:
         distributions = ['K0s', 'K3s', 'Microk8s']
-    # microk8s_services = ['K8s-dqlite', 'Kubelite', 'Containerd', 'calico-node']
-    # k0s_services = ['Etcd', 'Kube-apiserver', 'K0s', 'Kubelet', 'Containerd', 'calico-node']
-    # k3s_services = ['k3s-server', 'k3s-agent', 'Containerd', 'flannel']
-    # microshift_services = ['Microshift', 'Microshift-etcd', 'CRI-O', 'OVN-controller', 'OVNkube']
 
     if node == 'master1':
         k0s_services = ['etcd', 'kube-apiserver', 'k0s', 'calico-node']
